@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:kybee/common/theme_helper.dart';
+import 'package:kybee/ui/dashboard/dashboardPage.dart';
 
 // import 'forgot_password_page.dart';
 // import 'profile_page.dart';
@@ -39,12 +40,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     children: [
                       Text(
-                        'Hello',
-                        style: TextStyle(
-                            fontSize: 60, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Signin into your account',
+                        'Login into your account',
                         style: TextStyle(color: Colors.grey),
                       ),
                       SizedBox(height: 30.0),
@@ -54,8 +50,9 @@ class _LoginPageState extends State<LoginPage> {
                             children: [
                               Container(
                                 child: TextField(
+                                  keyboardType: TextInputType.number,
                                   decoration: ThemeHelper().textInputDecoration(
-                                      'User Name', 'Enter your user name'),
+                                      'Telephone', 'Enter your Telephone No.'),
                                 ),
                                 decoration:
                                     ThemeHelper().inputBoxDecorationShaddow(),
@@ -79,7 +76,8 @@ class _LoginPageState extends State<LoginPage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => null),
+                                          builder: (context) =>
+                                              DashboardPage()),
                                     );
                                   },
                                   child: Text(
@@ -99,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                                     padding:
                                         EdgeInsets.fromLTRB(40, 10, 40, 10),
                                     child: Text(
-                                      'Sign In'.toUpperCase(),
+                                      'Login'.toUpperCase(),
                                       style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
@@ -111,7 +109,8 @@ class _LoginPageState extends State<LoginPage> {
                                     Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => null));
+                                            builder: (context) =>
+                                                DashboardPage()));
                                   },
                                 ),
                               ),
@@ -121,13 +120,14 @@ class _LoginPageState extends State<LoginPage> {
                                 child: Text.rich(TextSpan(children: [
                                   TextSpan(text: "Don\'t have an account? "),
                                   TextSpan(
-                                    text: 'Create',
+                                    text: 'Register Now',
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) => null));
+                                                builder: (context) =>
+                                                    DashboardPage()));
                                       },
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
