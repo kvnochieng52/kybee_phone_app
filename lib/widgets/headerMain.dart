@@ -23,24 +23,11 @@ import 'package:flutter/material.dart';
 AppBar header(context, {String titleText}) {
   return AppBar(
     centerTitle: true,
-    title: Row(
-      children: <Widget>[
-        Image.asset(
-          'images/logo.png',
-          fit: BoxFit.cover,
-          height: 50.0,
-          width: 50.0,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 10.0),
-          child: Text(
-            titleText.isEmpty ? "Dashboard" : titleText,
-            style: TextStyle(
-              fontSize: 16.0,
-            ),
-          ),
-        ),
-      ],
+    title: Image.asset(
+      'images/logo_without_name.png',
+      fit: BoxFit.cover,
+      height: 50.0,
+      width: 50.0,
     ),
     elevation: 0.0,
     actions: <Widget>[rightButtons(context, titleText)],
