@@ -1,6 +1,7 @@
 //import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:kybee/common/theme_helper.dart';
 // import 'package:kybee/widgets/bottomNavigation.dart';
 import 'package:kybee/widgets/drawer.dart';
 import 'package:kybee/widgets/headerMain.dart';
@@ -30,6 +31,8 @@ class _DashboardState extends State<DashboardPage> {
       _loanSelecetor(context),
       _loanDays(context),
       _loanDetails(context),
+      _loanRepayment(context),
+      _applyButton(context),
     ]);
   }
 
@@ -120,18 +123,35 @@ class _DashboardState extends State<DashboardPage> {
 
   Container _loanDetails(context) {
     return Container(
-      margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+      margin: const EdgeInsets.only(top: 10.0, bottom: 6.0),
       child: Card(
         child: Padding(
           padding: const EdgeInsets.only(
-              top: 23.0, bottom: 23.0, left: 10.0, right: 10.0),
+            top: 23.0,
+            bottom: 23.0,
+            left: 10.0,
+            right: 10.0,
+          ),
           child: ListView(
             physics: ClampingScrollPhysics(),
             shrinkWrap: true,
             children: [
-              Text(
-                "LOAN DETAILS",
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),
+              Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    size: 20.0,
+                    color: HexColor('#000000'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 5.0),
+                    child: Text(
+                      "LOAN DETAILS",
+                      style: TextStyle(
+                          fontSize: 16.0, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 15.0),
@@ -215,6 +235,137 @@ class _DashboardState extends State<DashboardPage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Container _loanRepayment(context) {
+    return Container(
+      // margin: const EdgeInsets.only(top: 10.0),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.only(
+            top: 23.0,
+            bottom: 23.0,
+            left: 10.0,
+            right: 10.0,
+          ),
+          child: ListView(
+            physics: ClampingScrollPhysics(),
+            shrinkWrap: true,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 20.0,
+                    color: HexColor('#000000'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 5.0),
+                    child: Text(
+                      "LOAN REPAYMENT",
+                      style: TextStyle(
+                          fontSize: 16.0, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      "Application Date",
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                    Text(
+                      "07-January-2022",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      "Due Date",
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                    Text(
+                      "14-January-2022",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      "Total Amount",
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                    Text(
+                      "Ksh 1,000",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container _applyButton(context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10.0, bottom: 6.0),
+      //decoration: ThemeHelper().buttonBoxDecoration(context),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            primary: HexColor('#4A1F1F'), // background
+            onPrimary: HexColor('#4A1F1F'),
+            shape: StadiumBorder(), // foreground
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
+            child: Text(
+              'Apply Loan'.toUpperCase(),
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+          ),
+          onPressed: () {
+            //After successful login we will redirect to profile page. Let's create profile page now
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => DashboardPage()));
+          },
         ),
       ),
     );
