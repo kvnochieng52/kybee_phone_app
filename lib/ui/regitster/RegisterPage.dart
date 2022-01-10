@@ -3,21 +3,21 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:kybee/common/theme_helper.dart';
 import 'package:kybee/ui/dashboard/dashboardPage.dart';
-import 'package:kybee/ui/regitster/RegisterPage.dart';
+import 'package:kybee/ui/login.dart';
 
 // import 'forgot_password_page.dart';
 // import 'profile_page.dart';
 // import 'registration_page.dart';
 import 'package:kybee/widgets/header_widget.dart';
 
-class LoginPage extends StatefulWidget {
-  // const LoginPage({Key? key}): super(key:key);
+class RegisterPage extends StatefulWidget {
+  // const RegisterPage({Key? key}): super(key:key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   double _headerHeight = 250;
   Key _formKey = GlobalKey<FormState>();
 
@@ -41,11 +41,11 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     children: [
                       Text(
-                        'LOGIN',
+                        'REGISTER',
                         style: TextStyle(color: Colors.grey, fontSize: 25),
                       ),
                       Text(
-                        'Login into your account',
+                        'Register your free account to get started',
                         style: TextStyle(color: Colors.grey),
                       ),
                       SizedBox(height: 30.0),
@@ -102,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
                                     padding:
                                         EdgeInsets.fromLTRB(40, 10, 40, 10),
                                     child: Text(
-                                      'Login'.toUpperCase(),
+                                      'Register'.toUpperCase(),
                                       style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
@@ -123,16 +123,16 @@ class _LoginPageState extends State<LoginPage> {
                                 margin: EdgeInsets.fromLTRB(10, 20, 10, 20),
                                 //child: Text('Don\'t have an account? Create'),
                                 child: Text.rich(TextSpan(children: [
-                                  TextSpan(text: "Don\'t have an account? "),
+                                  TextSpan(text: "Already have an account? "),
                                   TextSpan(
-                                    text: 'Register Now',
+                                    text: 'Login Now',
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    RegisterPage()));
+                                                    LoginPage()));
                                       },
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,

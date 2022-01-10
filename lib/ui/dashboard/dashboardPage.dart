@@ -348,7 +348,7 @@ class _DashboardState extends State<DashboardPage> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             primary: HexColor('#4A1F1F'), // background
-            onPrimary: HexColor('#4A1F1F'),
+            onPrimary: HexColor('#4A1F1A'),
             shape: StadiumBorder(), // foreground
           ),
           child: Padding(

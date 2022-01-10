@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kybee/ui/dashboard/dashboardPage.dart';
+import 'package:kybee/ui/profile/basicDetailsPage.dart';
 
 Drawer drawer(context) {
   return Drawer(
@@ -30,13 +32,24 @@ Drawer drawer(context) {
           // ),
           _customListTyle(
             Icons.dashboard,
-            'Dashboard',
-            () => Navigator.of(context).pushNamed('/dashboard'),
+            'My Loan',
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DashboardPage(),
+              ),
+            ),
           ),
           _customListTyle(
             Icons.account_circle,
-            'Farmers',
-            () => Navigator.of(context).pushNamed('/farmers'),
+            'My Profile',
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BasicDetailsPage(),
+              ),
+            ),
+            // () => Navigator.of(context).pushNamed('/farmers'),
           ),
           _customListTyle(
             Icons.supervised_user_circle,
