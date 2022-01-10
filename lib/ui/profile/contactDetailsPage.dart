@@ -5,30 +5,27 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kybee/common/theme_helper.dart';
 import 'package:kybee/ui/dashboard/dashboardPage.dart';
 import 'package:kybee/ui/login.dart';
-import 'package:kybee/ui/profile/contactDetailsPage.dart';
+import 'package:kybee/ui/profile/otherDetailsPage.dart';
 
 // import 'forgot_password_page.dart';
 // import 'profile_page.dart';
 // import 'registration_page.dart';
 import 'package:kybee/widgets/header_widget.dart';
 
-class BasicDetailsPage extends StatefulWidget {
-  // const BasicDetailsPage({Key? key}): super(key:key);
+class ContactDetailsPage extends StatefulWidget {
+  // const ContactDetailsPage({Key? key}): super(key:key);
 
   @override
-  _BasicDetailsPageState createState() => _BasicDetailsPageState();
+  _ContactDetailsPageState createState() => _ContactDetailsPageState();
 }
 
-class _BasicDetailsPageState extends State<BasicDetailsPage> {
+class _ContactDetailsPageState extends State<ContactDetailsPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String _firstname;
   String _gender;
-  var gender_items = [
-    'Male',
-    'Female',
-  ];
+  var gender_items = ['Parents', 'Spouse', 'Friend', 'Collegue', 'Sibling'];
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +34,7 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
-          'My Profile(Basic Details)',
+          'Contact Details',
           style: TextStyle(
             fontSize: 16.0,
           ),
@@ -49,31 +46,25 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
           key: _formkey,
           child: SingleChildScrollView(
             child: Column(children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Flexible(
-                    child: TextFormField(
-                      decoration: ThemeHelper().textInputDecoration(
-                          'First Name', 'Enter your First Name.'),
-                      validator: (value) =>
-                          value.isEmpty ? 'Enter Firstname' : null,
-                      onSaved: (String value) {
-                        _firstname = value;
-                      },
-                    ),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0, bottom: 8.0),
+                child: Text(
+                  "Referees 1",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
+                padding: const EdgeInsets.only(top: 8.0),
                 child: Row(
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
                         decoration: ThemeHelper().textInputDecoration(
-                            'Middle Name', 'Enter your Middle Name.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter MiddleName' : null,
+                            "Referee's 1 Full Legal Names",
+                            'Enter Referee 1 full Legal Name.'),
+                        validator: (value) => value.isEmpty
+                            ? 'Enter Referee 1 full Legal Name'
+                            : null,
                         onSaved: (String value) {
                           _firstname = value;
                         },
@@ -83,15 +74,15 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
+                padding: const EdgeInsets.only(top: 15.0),
                 child: Row(
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
                         decoration: ThemeHelper().textInputDecoration(
-                            'Last Name', 'Enter your Last Name.'),
+                            'Phone Number', 'Enter your Phone Number.'),
                         validator: (value) =>
-                            value.isEmpty ? 'Enter Last Name' : null,
+                            value.isEmpty ? 'Enter Phone Number' : null,
                         onSaved: (String value) {
                           _firstname = value;
                         },
@@ -101,26 +92,7 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Flexible(
-                      child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        decoration: ThemeHelper().textInputDecoration(
-                            'ID Number', 'Enter your ID Number.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter ID Number' : null,
-                        onSaved: (String value) {
-                          _firstname = value;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
+                padding: const EdgeInsets.only(top: 15.0),
                 child: Row(
                   children: <Widget>[
                     Flexible(
@@ -136,10 +108,11 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                         child: DropdownButtonFormField(
                           value: _gender,
                           isExpanded: true,
-                          hint: Text("Select Gender"),
+                          hint: Text("Select Relation",
+                              style: TextStyle(fontSize: 16)),
                           style: TextStyle(color: Colors.green),
                           validator: (value) =>
-                              value == null ? 'Select Gender' : null,
+                              value == null ? 'Select Relation' : null,
                           decoration: InputDecoration(
                             enabledBorder: InputBorder.none,
                           ),
@@ -161,16 +134,24 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
+                padding: const EdgeInsets.only(top: 20.0, bottom: 8.0),
+                child: Text(
+                  "Referees 2",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
                 child: Row(
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        decoration: ThemeHelper()
-                            .textInputDecoration('Email', 'Enter your Email.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter Email' : null,
+                        decoration: ThemeHelper().textInputDecoration(
+                            "Referee's 2 Full Legal Names",
+                            'Enter Referee 2 full Legal Name.'),
+                        validator: (value) => value.isEmpty
+                            ? 'Enter Referee 2 full Legal Name'
+                            : null,
                         onSaved: (String value) {
                           _firstname = value;
                         },
@@ -180,19 +161,60 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
+                padding: const EdgeInsets.only(top: 15.0),
                 child: Row(
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
-                        keyboardType: TextInputType.number,
                         decoration: ThemeHelper().textInputDecoration(
-                            'Date Of Birth', 'Enter your Date Of Birth.'),
+                            'Phone Number', 'Enter your Phone Number.'),
                         validator: (value) =>
-                            value.isEmpty ? 'Enter Date Of Birth' : null,
+                            value.isEmpty ? 'Enter Phone Number' : null,
                         onSaved: (String value) {
                           _firstname = value;
                         },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: Row(
+                  children: <Widget>[
+                    Flexible(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50.0),
+                          border: Border.all(
+                              color: Colors.grey,
+                              style: BorderStyle.solid,
+                              width: 0.80),
+                        ),
+                        child: DropdownButtonFormField(
+                          value: _gender,
+                          isExpanded: true,
+                          hint: Text("Select Relation",
+                              style: TextStyle(fontSize: 16)),
+                          style: TextStyle(color: Colors.green),
+                          validator: (value) =>
+                              value == null ? 'Select Relation' : null,
+                          decoration: InputDecoration(
+                            enabledBorder: InputBorder.none,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _gender = value;
+                            });
+                          },
+                          items: gender_items.map((gender) {
+                            return DropdownMenuItem(
+                              value: gender.toString(),
+                              child: Text(gender),
+                            );
+                          }).toList(),
+                        ),
                       ),
                     ),
                   ],
@@ -211,9 +233,10 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                     child: Text(
                       'Next'.toUpperCase(),
                       style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   onPressed: () {
@@ -221,7 +244,7 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ContactDetailsPage()));
+                            builder: (context) => OtherDetailsPage()));
                   },
                 ),
               ),

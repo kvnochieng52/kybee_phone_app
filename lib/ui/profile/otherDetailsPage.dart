@@ -12,14 +12,14 @@ import 'package:kybee/ui/profile/contactDetailsPage.dart';
 // import 'registration_page.dart';
 import 'package:kybee/widgets/header_widget.dart';
 
-class BasicDetailsPage extends StatefulWidget {
-  // const BasicDetailsPage({Key? key}): super(key:key);
+class OtherDetailsPage extends StatefulWidget {
+  // const OtherDetailsPage({Key? key}): super(key:key);
 
   @override
-  _BasicDetailsPageState createState() => _BasicDetailsPageState();
+  _OtherDetailsPageState createState() => _OtherDetailsPageState();
 }
 
-class _BasicDetailsPageState extends State<BasicDetailsPage> {
+class _OtherDetailsPageState extends State<OtherDetailsPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -37,7 +37,7 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
-          'My Profile(Basic Details)',
+          'Other Details',
           style: TextStyle(
             fontSize: 16.0,
           ),
@@ -209,7 +209,7 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
                     child: Text(
-                      'Next'.toUpperCase(),
+                      'Submit'.toUpperCase(),
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -221,7 +221,7 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ContactDetailsPage()));
+                            builder: (context) => DashboardPage()));
                   },
                 ),
               ),
