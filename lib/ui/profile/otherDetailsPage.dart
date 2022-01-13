@@ -24,10 +24,17 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String _firstname;
-  String _gender;
-  var gender_items = [
-    'Male',
-    'Female',
+  String _county;
+  var county_items = [
+    'Nairobi',
+    'Kisumu',
+    'Mombasa',
+    'Kitui',
+    'Embu',
+    'Machakos',
+    'Nyandarua',
+    'Kirinyaga',
+    'Muranga'
   ];
 
   @override
@@ -49,75 +56,9 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
           key: _formkey,
           child: SingleChildScrollView(
             child: Column(children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Flexible(
-                    child: TextFormField(
-                      decoration: ThemeHelper().textInputDecoration(
-                          'First Name', 'Enter your First Name.'),
-                      validator: (value) =>
-                          value.isEmpty ? 'Enter Firstname' : null,
-                      onSaved: (String value) {
-                        _firstname = value;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Flexible(
-                      child: TextFormField(
-                        decoration: ThemeHelper().textInputDecoration(
-                            'Middle Name', 'Enter your Middle Name.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter MiddleName' : null,
-                        onSaved: (String value) {
-                          _firstname = value;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Flexible(
-                      child: TextFormField(
-                        decoration: ThemeHelper().textInputDecoration(
-                            'Last Name', 'Enter your Last Name.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter Last Name' : null,
-                        onSaved: (String value) {
-                          _firstname = value;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Flexible(
-                      child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        decoration: ThemeHelper().textInputDecoration(
-                            'ID Number', 'Enter your ID Number.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter ID Number' : null,
-                        onSaved: (String value) {
-                          _firstname = value;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+              Text(
+                "Company Address",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
@@ -134,21 +75,21 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
                               width: 0.80),
                         ),
                         child: DropdownButtonFormField(
-                          value: _gender,
+                          value: _county,
                           isExpanded: true,
-                          hint: Text("Select Gender"),
+                          hint: Text("Select County"),
                           style: TextStyle(color: Colors.green),
                           validator: (value) =>
-                              value == null ? 'Select Gender' : null,
+                              value == null ? 'Select County' : null,
                           decoration: InputDecoration(
                             enabledBorder: InputBorder.none,
                           ),
                           onChanged: (value) {
                             setState(() {
-                              _gender = value;
+                              _county = value;
                             });
                           },
-                          items: gender_items.map((gender) {
+                          items: county_items.map((gender) {
                             return DropdownMenuItem(
                               value: gender.toString(),
                               child: Text(gender),
@@ -166,14 +107,61 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        decoration: ThemeHelper()
-                            .textInputDecoration('Email', 'Enter your Email.'),
+                        decoration: ThemeHelper().textInputDecoration(
+                            'Company Address', 'Enter Company Address.'),
                         validator: (value) =>
-                            value.isEmpty ? 'Enter Email' : null,
+                            value.isEmpty ? 'Enter Company Address' : null,
                         onSaved: (String value) {
                           _firstname = value;
                         },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Text(
+                  "Your Address",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Row(
+                  children: <Widget>[
+                    Flexible(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50.0),
+                          border: Border.all(
+                              color: Colors.grey,
+                              style: BorderStyle.solid,
+                              width: 0.80),
+                        ),
+                        child: DropdownButtonFormField(
+                          value: _county,
+                          isExpanded: true,
+                          hint: Text("Select County"),
+                          style: TextStyle(color: Colors.green),
+                          validator: (value) =>
+                              value == null ? 'Select County' : null,
+                          decoration: InputDecoration(
+                            enabledBorder: InputBorder.none,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _county = value;
+                            });
+                          },
+                          items: county_items.map((gender) {
+                            return DropdownMenuItem(
+                              value: gender.toString(),
+                              child: Text(gender),
+                            );
+                          }).toList(),
+                        ),
                       ),
                     ),
                   ],
@@ -185,11 +173,10 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
-                        keyboardType: TextInputType.number,
                         decoration: ThemeHelper().textInputDecoration(
-                            'Date Of Birth', 'Enter your Date Of Birth.'),
+                            'Your Address', 'Enter Your Address.'),
                         validator: (value) =>
-                            value.isEmpty ? 'Enter Date Of Birth' : null,
+                            value.isEmpty ? 'Enter Your Address' : null,
                         onSaved: (String value) {
                           _firstname = value;
                         },

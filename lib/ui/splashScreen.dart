@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:kybee/ui/login.dart';
+import 'package:kybee/ui/terms_conditions/TermsConditionsPage.dart';
 
 class SplashScreen extends StatefulWidget {
   // SplashScreen({Key? key, required this.title}) : super(key: key);
@@ -20,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
     new Timer(const Duration(milliseconds: 2000), () {
       setState(() {
         Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => LoginPage()),
+            MaterialPageRoute(builder: (context) => TermsandConditionsPage()),
             (route) => false);
       });
     });

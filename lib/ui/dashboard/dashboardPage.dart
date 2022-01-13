@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:kybee/common/theme_helper.dart';
+import 'package:kybee/ui/loan/LoanApprovedPage.dart';
 // import 'package:kybee/widgets/bottomNavigation.dart';
 import 'package:kybee/widgets/drawer.dart';
 import 'package:kybee/widgets/headerMain.dart';
@@ -364,7 +365,7 @@ class _DashboardState extends State<DashboardPage> {
           onPressed: () {
             //After successful login we will redirect to profile page. Let's create profile page now
             Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => DashboardPage()));
+                MaterialPageRoute(builder: (context) => LoanApprovedPage()));
           },
         ),
       ),

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:kybee/ui/contact_us/ContactUsPage.dart';
 import 'package:kybee/ui/dashboard/dashboardPage.dart';
+import 'package:kybee/ui/login.dart';
+import 'package:kybee/ui/messages/MessagesPage.dart';
 import 'package:kybee/ui/profile/basicDetailsPage.dart';
+import 'package:kybee/ui/terms_conditions/TermsConditionsPage.dart';
 
 Drawer drawer(context) {
   return Drawer(
@@ -52,29 +56,51 @@ Drawer drawer(context) {
             // () => Navigator.of(context).pushNamed('/farmers'),
           ),
           _customListTyle(
-            Icons.supervised_user_circle,
-            'Groups',
-            () => Navigator.of(context).pushNamed('/groups'),
+            Icons.phone,
+            'Contact Us',
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ContactUsPage(),
+              ),
+            ),
           ),
           _customListTyle(
-            Icons.notifications,
-            'Farm Inputs',
-            () => Navigator.of(context).pushNamed('/farm_inputs'),
+            Icons.chat,
+            'Messages',
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MessagesPage(),
+              ),
+            ),
+          ),
+
+          _customListTyle(
+            Icons.info,
+            'Terms & Conditions',
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TermsandConditionsPage(),
+              ),
+            ),
           ),
           _customListTyle(
-            Icons.store,
-            'Organizations',
-            () => Navigator.of(context).pushNamed('/organizations'),
+            Icons.info,
+            'Help',
+            () => null,
           ),
+
           _customListTyle(
-            Icons.settings,
-            'Profile',
-            () => Navigator.of(context).pushNamed('/profile'),
-          ),
-          _customListTyle(
-            Icons.blur_circular,
+            Icons.logout,
             'Logout',
-            () => Navigator.of(context).pushNamed('/logout'),
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginPage(),
+              ),
+            ),
           ),
         ],
       ),
