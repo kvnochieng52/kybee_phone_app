@@ -1,19 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:kybee/common/theme_helper.dart';
-import 'package:kybee/ui/dashboard/dashboardPage.dart';
 import 'package:kybee/ui/login.dart';
-import 'package:kybee/ui/profile/contactDetailsPage.dart';
-
-// import 'forgot_password_page.dart';
-// import 'profile_page.dart';
-// import 'registration_page.dart';
-import 'package:kybee/widgets/header_widget.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:kybee/api/api.dart';
+import 'package:kybee/ui/progress.dart';
 
 class TermsandConditionsPage extends StatefulWidget {
   // const TermsandConditionsPage({Key? key}): super(key:key);
+
+  //test
 
   @override
   _TermsandConditionsPageState createState() => _TermsandConditionsPageState();
@@ -23,139 +21,127 @@ class _TermsandConditionsPageState extends State<TermsandConditionsPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  var _terms;
+  var _termsFetched = false;
+  bool _accepted_terms = false;
+
+  void initState() {
+    super.initState();
+    _getInitData();
+  }
+
+  _getInitData() async {
+    var res = await CallApi().getData('terms_conditions_fetch');
+    var body = json.decode(res.body);
+    if (body['success']) {
+      setState(() {
+        _terms = body['terms']['setting_value'];
+        _termsFetched = true;
+      });
+    }
+  }
+
+  _checkTerms(context) {
+    if (_accepted_terms == true) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    } else {
+      showAlertDialog(context);
+      _accepted_terms = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
-      body: ListView(
-        physics: ClampingScrollPhysics(),
-        shrinkWrap: true,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 5.0, right: 5.0),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: ListView(
-                    physics: ClampingScrollPhysics(),
-                    shrinkWrap: true,
-                    children: <Widget>[
-                      Text(
-                        "TERMS OF USE",
+      body: _termsFetched
+          ? ListView(
+              physics: ClampingScrollPhysics(),
+              shrinkWrap: true,
+              children: <Widget>[
+                Padding(
+                  padding:
+                      const EdgeInsets.only(top: 16.0, left: 5.0, right: 5.0),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ListView(
+                          physics: ClampingScrollPhysics(),
+                          shrinkWrap: true,
+                          children: <Widget>[
+                            SingleChildScrollView(
+                              child: Html(
+                                data: """$_terms""",
+                                //padding: EdgeInsets.all(8.0),
+                              ),
+                            ),
+                          ]),
+                    ),
+                  ),
+                ),
+                CheckboxListTile(
+                  title: Text("I Accept Terms & Conditions"),
+                  value: _accepted_terms,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _accepted_terms = value;
+                    });
+                  },
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 15.0, right: 15.0, top: 30.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: HexColor('#4A1F1F'), // background
+                      onPrimary: HexColor('#4A1F1A'),
+                      shape: StadiumBorder(), // foreground
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
+                      child: Text(
+                        'Comtinue',
                         style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: HexColor('#4A1F1F')),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          "(Last Updated: 25-October-2021)",
-                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                            color: Colors.white),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 9.0),
-                        child: Text(
-                          'This Agreement sets out the complete terms and conditions (hereinafter called "these Terms and conditions") which shall be applicable to the KYBEE LOANS Account(as hereinafter defined) opened by you.',
-                          style: TextStyle(
-                            fontSize: 19.0,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 9.0),
-                        child: Text(
-                          'These Terms and conditions and any amendments or variations thereto take effect on their date of publication.',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 9.0),
-                        child: Text(
-                          'DEFINATIONS',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                            color: HexColor('#4A1F1F'),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 9.0),
-                        child: Text(
-                          '1. Lorem Ipsum is simply dummy text of the printing and typesetting industry..',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 9.0),
-                        child: Text(
-                          '2. Lorem Ipsum is simply dummy text of the printing and typesetting industry..',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 9.0),
-                        child: Text(
-                          'ACCOUNT OPENING',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                            color: HexColor('#4A1F1F'),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 9.0),
-                        child: Text(
-                          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer,",
-                          style: TextStyle(
-                            fontSize: 18.0,
-                          ),
-                        ),
-                      ),
-                    ]),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 15.0, right: 15.0, top: 30.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                primary: HexColor('#4A1F1F'), // background
-                onPrimary: HexColor('#4A1F1A'),
-                shape: StadiumBorder(), // foreground
-              ),
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
-                child: Text(
-                  'I Accept Terms & Conditions',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                    ),
+                    onPressed: () => _checkTerms(context),
+                  ),
                 ),
-              ),
-              onPressed: () {
-                //After successful login we will redirect to profile page. Let's create profile page now
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => LoginPage()));
-              },
-            ),
-          ),
-        ],
-      ),
+              ],
+            )
+          : circularProgress(),
+    );
+  }
+
+  showAlertDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OKAY"),
+      onPressed: () => Navigator.pop(context),
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Accept terms & conditions"),
+      content: Text("Please Accept the Terms & Conditions to continue"),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }
