@@ -1,34 +1,122 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kybee/api/api.dart';
 import 'package:kybee/common/theme_helper.dart';
-import 'package:kybee/ui/dashboard/dashboardPage.dart';
-import 'package:kybee/ui/login.dart';
+import 'package:intl/intl.dart';
+import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/profile/contactDetailsPage.dart';
-
-// import 'forgot_password_page.dart';
-// import 'profile_page.dart';
-// import 'registration_page.dart';
-import 'package:kybee/widgets/header_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BasicDetailsPage extends StatefulWidget {
-  // const BasicDetailsPage({Key? key}): super(key:key);
-
   @override
   _BasicDetailsPageState createState() => _BasicDetailsPageState();
 }
 
 class _BasicDetailsPageState extends State<BasicDetailsPage> {
-  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String _firstname;
-  String _gender;
-  var gender_items = [
-    'Male',
-    'Female',
-  ];
+  final _firstNameController = TextEditingController();
+  final _middleNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _idNumberController = TextEditingController();
+  final _emailController = TextEditingController();
+  DateTime selectedDate = DateTime.now();
+  TextEditingController _dobController = TextEditingController();
+  bool _initDataFetched = false;
+  List _genders = [];
+
+  int _gender;
+
+  void initState() {
+    super.initState();
+    _getInitData();
+  }
+
+  _getInitData() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    var data = {
+      'user_id': user['id'],
+    };
+    var res = await CallApi().postData(data, 'profile/details');
+    var body = json.decode(res.body);
+
+    setState(() {
+      _genders = body['genders'];
+    });
+
+    if (body['success']) {
+      setState(() {
+        _firstNameController.text = body['data']['first_name'];
+        _middleNameController.text = body['data']['middle_name'];
+        _lastNameController.text = body['data']['last_name'];
+        _idNumberController.text = body['data']['id_number'];
+        _emailController.text = body['data']['email'];
+        _dobController.text = body['data']['date_of_birth'];
+        _gender = body['data']['gender_id'];
+        _initDataFetched = true;
+      });
+    }
+  }
+
+  Future<Null> _selectDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(1901, 1),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+        _dobController.text = DateFormat("dd-MM-yyyy").format(picked);
+      });
+  }
+
+  _saveProfileDetails(context, section) async {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
+    _formKey.currentState.save();
+
+    Loading().loader(context, "Updating...Please wait");
+
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    var data = {
+      'user_id': user['id'],
+      'section': section,
+      'first_name': _firstNameController.text,
+      'middle_name': _middleNameController.text,
+      'last_name': _lastNameController.text,
+      'id_number': _idNumberController.text,
+      'email': _emailController.text,
+      'dob': _dobController.text,
+      'gender': _gender,
+    };
+
+    var res = await CallApi().postData(data, 'profile/update');
+    var body = json.decode(res.body);
+    if (body['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(body['message']),
+        ),
+      );
+      Navigator.pop(context);
+      return Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ContactDetailsPage(),
+          ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,19 +134,49 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Form(
-          key: _formkey,
+          key: _formKey,
           child: SingleChildScrollView(
             child: Column(children: <Widget>[
+              _initDataFetched
+                  ? Text("")
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            child: CircularProgressIndicator(),
+                            height: 25.0,
+                            width: 25.0,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15.0),
+                            child: Text(
+                              "Loading...Please Wait",
+                              style: TextStyle(
+                                color: Colors.brown,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
               Row(
                 children: <Widget>[
                   Flexible(
                     child: TextFormField(
+                      controller: _firstNameController,
                       decoration: ThemeHelper().textInputDecoration(
                           'First Name', 'Enter your First Name.'),
-                      validator: (value) =>
-                          value.isEmpty ? 'Enter Firstname' : null,
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter First Name';
+                        }
+                        return null;
+                      },
                       onSaved: (String value) {
-                        _firstname = value;
+                        _firstNameController.text = value;
                       },
                     ),
                   ),
@@ -70,12 +188,17 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
+                        controller: _middleNameController,
                         decoration: ThemeHelper().textInputDecoration(
                             'Middle Name', 'Enter your Middle Name.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter MiddleName' : null,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter your middle Name';
+                          }
+                          return null;
+                        },
                         onSaved: (String value) {
-                          _firstname = value;
+                          _middleNameController.text = value;
                         },
                       ),
                     ),
@@ -88,12 +211,17 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
+                        controller: _lastNameController,
                         decoration: ThemeHelper().textInputDecoration(
                             'Last Name', 'Enter your Last Name.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter Last Name' : null,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter your Last Name';
+                          }
+                          return null;
+                        },
                         onSaved: (String value) {
-                          _firstname = value;
+                          _lastNameController.text = value;
                         },
                       ),
                     ),
@@ -106,13 +234,20 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
+                        controller: _idNumberController,
                         keyboardType: TextInputType.number,
                         decoration: ThemeHelper().textInputDecoration(
                             'ID Number', 'Enter your ID Number.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter ID Number' : null,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter ID Number';
+                          } else if (value.length < 6) {
+                            return 'ID Number  should not be less than 6 characters';
+                          }
+                          return null;
+                        },
                         onSaved: (String value) {
-                          _firstname = value;
+                          _idNumberController.text = value;
                         },
                       ),
                     ),
@@ -148,10 +283,10 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                               _gender = value;
                             });
                           },
-                          items: gender_items.map((gender) {
+                          items: _genders.map((gender) {
                             return DropdownMenuItem(
-                              value: gender.toString(),
-                              child: Text(gender),
+                              value: gender['id'],
+                              child: Text(gender['gender_name']),
                             );
                           }).toList(),
                         ),
@@ -166,13 +301,17 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
-                        keyboardType: TextInputType.number,
+                        controller: _emailController,
                         decoration: ThemeHelper()
                             .textInputDecoration('Email', 'Enter your Email.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter Email' : null,
+                        validator: (String value) {
+                          bool emailValid = RegExp(
+                                  r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                              .hasMatch(value);
+                          return !emailValid ? "Enter a Valid Email" : null;
+                        },
                         onSaved: (String value) {
-                          _firstname = value;
+                          _emailController.text = value;
                         },
                       ),
                     ),
@@ -184,15 +323,22 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                 child: Row(
                   children: <Widget>[
                     Flexible(
-                      child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        decoration: ThemeHelper().textInputDecoration(
-                            'Date Of Birth', 'Enter your Date Of Birth.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter Date Of Birth' : null,
-                        onSaved: (String value) {
-                          _firstname = value;
-                        },
+                      child: GestureDetector(
+                        onTap: () => _selectDate(context),
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            controller: _dobController,
+                            keyboardType: TextInputType.datetime,
+                            decoration: ThemeHelper()
+                                .textInputDecoration('Date of Birth'),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'Please enter Date of Birth';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -209,20 +355,18 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
                     child: Text(
-                      'Next'.toUpperCase(),
+                      _initDataFetched
+                          ? 'Next'.toUpperCase()
+                          : 'Loading...Please wait',
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.white),
                     ),
                   ),
-                  onPressed: () {
-                    //After successful login we will redirect to profile page. Let's create profile page now
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ContactDetailsPage()));
-                  },
+                  onPressed: () => _initDataFetched
+                      ? _saveProfileDetails(context, 'basic')
+                      : null,
                 ),
               ),
             ]),
