@@ -1,31 +1,177 @@
+import 'dart:convert';
+
+import 'package:contact_picker/contact_picker.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kybee/api/api.dart';
 import 'package:kybee/common/theme_helper.dart';
-import 'package:kybee/ui/dashboard/dashboardPage.dart';
-import 'package:kybee/ui/login.dart';
+import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/profile/otherDetailsPage.dart';
 
-// import 'forgot_password_page.dart';
-// import 'profile_page.dart';
-// import 'registration_page.dart';
-import 'package:kybee/widgets/header_widget.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ContactDetailsPage extends StatefulWidget {
-  // const ContactDetailsPage({Key? key}): super(key:key);
-
   @override
   _ContactDetailsPageState createState() => _ContactDetailsPageState();
 }
 
 class _ContactDetailsPageState extends State<ContactDetailsPage> {
-  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String _firstname;
-  String _gender;
-  var gender_items = ['Parents', 'Spouse', 'Friend', 'Collegue', 'Sibling'];
+  final _refOneNameController = TextEditingController();
+  final _refOneMobileController = TextEditingController();
+
+  final _refTwoNameController = TextEditingController();
+  final _refTwoMobileController = TextEditingController();
+
+  final ContactPicker _contactPicker = new ContactPicker();
+
+  List _relationTypes = [];
+
+  int _relationOne;
+  int _relationTwo;
+
+  bool _initDataFetched = false;
+
+  void initState() {
+    super.initState();
+    _getInitData();
+  }
+
+  _getInitData() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    var data = {
+      'user_id': user['id'],
+    };
+    var res = await CallApi().postData(data, 'profile/details');
+    var body = json.decode(res.body);
+
+    setState(() {
+      _relationTypes = body['relation_types'];
+    });
+
+    if (body['success']) {
+      if (body['user_referees'].length > 0) {
+        setState(() {
+          _refOneNameController.text = body['user_referees'][0]['referee_name'];
+          _refOneMobileController.text = body['user_referees'][0]['telephone'];
+          _relationOne = body['user_referees'][0]['relationship_type_id'];
+
+          _refTwoNameController.text = body['user_referees'][1]['referee_name'];
+          _refTwoMobileController.text = body['user_referees'][1]['telephone'];
+          _relationTwo = body['user_referees'][1]['relationship_type_id'];
+        });
+      }
+    }
+
+    setState(() {
+      _initDataFetched = true;
+    });
+  }
+
+  _saveProfileDetails(context, section) async {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
+    _formKey.currentState.save();
+
+    Loading().loader(context, "Updating...Please wait");
+
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    var data = {
+      'user_id': user['id'],
+      'section': section,
+      'ref_one_name': _refOneNameController.text,
+      'ref_one_mobile_no': _refOneMobileController.text,
+      'ref_one_relation': _relationOne,
+      'ref_two_name': _refTwoNameController.text,
+      'ref_two_mobile_no': _refTwoMobileController.text,
+      'ref_two_relation': _relationTwo,
+    };
+
+    var res = await CallApi().postData(data, 'profile/update');
+    var body = json.decode(res.body);
+    if (body['success']) {
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(body['message']),
+      //   ),
+      // );
+      Navigator.pop(context);
+      return Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OtherDetailsPage(),
+          ));
+    }
+  }
+
+  Future<PermissionStatus> _getPermission() async {
+    final PermissionStatus permission = await Permission.contacts.status;
+    if (permission != PermissionStatus.granted &&
+        permission != PermissionStatus.denied) {
+      final Map<Permission, PermissionStatus> permissionStatus =
+          await [Permission.contacts].request();
+      return permissionStatus[Permission.contacts] ??
+          PermissionStatus.undetermined;
+    } else {
+      return permission;
+    }
+  }
+
+  _selectRefOneContact(context) async {
+    Loading().loader(context, "Loading contacts...Please wait");
+    final PermissionStatus permissionStatus = await _getPermission();
+    if (permissionStatus == PermissionStatus.granted) {
+      Contact contact = await _contactPicker.selectContact();
+
+      if (contact != null) {
+        setState(() {
+          _refOneMobileController.text = contact.phoneNumber.number
+              .toString()
+              .replaceAll(new RegExp(r"\s+"), "");
+        });
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please Grant KYBEE LOANS Permission to read contacts"),
+        ),
+      );
+    }
+
+    Navigator.pop(context);
+  }
+
+  _selectRefTwoContact(context) async {
+    Loading().loader(context, "Loading contacts...Please wait");
+    final PermissionStatus permissionStatus = await _getPermission();
+    if (permissionStatus == PermissionStatus.granted) {
+      Contact contact = await _contactPicker.selectContact();
+
+      if (contact != null) {
+        setState(() {
+          _refTwoMobileController.text = contact.phoneNumber.number
+              .toString()
+              .replaceAll(new RegExp(r"\s+"), "");
+        });
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please Grant KYBEE LOANS Permission to read contacts"),
+        ),
+      );
+    }
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +189,34 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Form(
-          key: _formkey,
+          key: _formKey,
           child: SingleChildScrollView(
             child: Column(children: <Widget>[
+              _initDataFetched
+                  ? Text("")
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            child: CircularProgressIndicator(),
+                            height: 25.0,
+                            width: 25.0,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15.0),
+                            child: Text(
+                              "Loading...Please Wait",
+                              style: TextStyle(
+                                color: Colors.brown,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
               Padding(
                 padding: const EdgeInsets.only(top: 15.0, bottom: 8.0),
                 child: Text(
@@ -59,14 +230,18 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
+                        controller: _refOneNameController,
                         decoration: ThemeHelper().textInputDecoration(
                             "Referee's 1 Full Legal Names",
                             'Enter Referee 1 full Legal Name.'),
-                        validator: (value) => value.isEmpty
-                            ? 'Enter Referee 1 full Legal Name'
-                            : null,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please Enter Referee 1 full Legal Name';
+                          }
+                          return null;
+                        },
                         onSaved: (String value) {
-                          _firstname = value;
+                          _refOneNameController.text = value;
                         },
                       ),
                     ),
@@ -78,14 +253,22 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                 child: Row(
                   children: <Widget>[
                     Flexible(
-                      child: TextFormField(
-                        decoration: ThemeHelper().textInputDecoration(
-                            'Phone Number', 'Enter your Phone Number.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter Phone Number' : null,
-                        onSaved: (String value) {
-                          _firstname = value;
-                        },
+                      child: GestureDetector(
+                        onTap: () => _selectRefOneContact(context),
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            controller: _refOneMobileController,
+                            keyboardType: TextInputType.datetime,
+                            decoration: ThemeHelper()
+                                .textInputDecoration("Referee's 1 Mobile No."),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "Please enter Referee's 1 Mobile No.";
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -106,10 +289,9 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                               width: 0.80),
                         ),
                         child: DropdownButtonFormField(
-                          value: _gender,
+                          value: _relationOne,
                           isExpanded: true,
-                          hint: Text("Select Relation",
-                              style: TextStyle(fontSize: 16)),
+                          hint: Text("Select Relation"),
                           style: TextStyle(color: Colors.green),
                           validator: (value) =>
                               value == null ? 'Select Relation' : null,
@@ -118,13 +300,13 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                           ),
                           onChanged: (value) {
                             setState(() {
-                              _gender = value;
+                              _relationOne = value;
                             });
                           },
-                          items: gender_items.map((gender) {
+                          items: _relationTypes.map((relation) {
                             return DropdownMenuItem(
-                              value: gender.toString(),
-                              child: Text(gender),
+                              value: relation['id'],
+                              child: Text(relation['relationship_type_name']),
                             );
                           }).toList(),
                         ),
@@ -146,14 +328,18 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                   children: <Widget>[
                     Flexible(
                       child: TextFormField(
+                        controller: _refTwoNameController,
                         decoration: ThemeHelper().textInputDecoration(
                             "Referee's 2 Full Legal Names",
                             'Enter Referee 2 full Legal Name.'),
-                        validator: (value) => value.isEmpty
-                            ? 'Enter Referee 2 full Legal Name'
-                            : null,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return "Please enter Referee's 1 Mobile No.";
+                          }
+                          return null;
+                        },
                         onSaved: (String value) {
-                          _firstname = value;
+                          _refTwoNameController.text = value;
                         },
                       ),
                     ),
@@ -165,14 +351,22 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                 child: Row(
                   children: <Widget>[
                     Flexible(
-                      child: TextFormField(
-                        decoration: ThemeHelper().textInputDecoration(
-                            'Phone Number', 'Enter your Phone Number.'),
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter Phone Number' : null,
-                        onSaved: (String value) {
-                          _firstname = value;
-                        },
+                      child: GestureDetector(
+                        onTap: () => _selectRefTwoContact(context),
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            controller: _refTwoMobileController,
+                            keyboardType: TextInputType.datetime,
+                            decoration: ThemeHelper()
+                                .textInputDecoration("Referee's 2 Mobile No."),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "Please enter Referee's 2 Mobile No.";
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -193,10 +387,9 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                               width: 0.80),
                         ),
                         child: DropdownButtonFormField(
-                          value: _gender,
+                          value: _relationTwo,
                           isExpanded: true,
-                          hint: Text("Select Relation",
-                              style: TextStyle(fontSize: 16)),
+                          hint: Text("Select Relation"),
                           style: TextStyle(color: Colors.green),
                           validator: (value) =>
                               value == null ? 'Select Relation' : null,
@@ -205,13 +398,13 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                           ),
                           onChanged: (value) {
                             setState(() {
-                              _gender = value;
+                              _relationTwo = value;
                             });
                           },
-                          items: gender_items.map((gender) {
+                          items: _relationTypes.map((relation) {
                             return DropdownMenuItem(
-                              value: gender.toString(),
-                              child: Text(gender),
+                              value: relation['id'],
+                              child: Text(relation['relationship_type_name']),
                             );
                           }).toList(),
                         ),
@@ -231,7 +424,9 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
                     child: Text(
-                      'Next'.toUpperCase(),
+                      _initDataFetched
+                          ? 'Next'.toUpperCase()
+                          : 'Loading...Please wait',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -239,13 +434,9 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                       ),
                     ),
                   ),
-                  onPressed: () {
-                    //After successful login we will redirect to profile page. Let's create profile page now
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => OtherDetailsPage()));
-                  },
+                  onPressed: () => _initDataFetched
+                      ? _saveProfileDetails(context, 'contacts')
+                      : null,
                 ),
               ),
             ]),

@@ -59,9 +59,11 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
         _emailController.text = body['data']['email'];
         _dobController.text = body['data']['date_of_birth'];
         _gender = body['data']['gender_id'];
-        _initDataFetched = true;
       });
     }
+    setState(() {
+      _initDataFetched = true;
+    });
   }
 
   Future<Null> _selectDate(BuildContext context) async {
@@ -104,11 +106,11 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
     var res = await CallApi().postData(data, 'profile/update');
     var body = json.decode(res.body);
     if (body['success']) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(body['message']),
-        ),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(body['message']),
+      //   ),
+      // );
       Navigator.pop(context);
       return Navigator.push(
           context,
