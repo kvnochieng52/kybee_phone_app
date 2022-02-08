@@ -1,13 +1,14 @@
-//import 'dart:convert';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:kybee/api/api.dart';
 import 'package:kybee/common/theme_helper.dart';
 import 'package:kybee/ui/loan/LoanApprovedPage.dart';
-// import 'package:kybee/widgets/bottomNavigation.dart';
 import 'package:kybee/widgets/drawer.dart';
 import 'package:kybee/widgets/headerMain.dart';
-// import 'package:kybee/widgets/progress.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -17,12 +18,55 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardState extends State<DashboardPage> {
+  List _loanDistributions = [];
+  int _loanDistribution = 0;
+  String _currency;
+  int _loanpaymentDays = 0;
+
+  bool _initDataFetched = false;
+
+  void initState() {
+    super.initState();
+    _getInitData();
+  }
+
+  _getInitData() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    var data = {
+      'user_id': user['id'],
+    };
+    var res = await CallApi().postData(data, 'loan/dashboard_init');
+    var body = json.decode(res.body);
+
+    if (body['success']) {
+      setState(() {
+        _loanDistributions = body['loan_distributions'];
+        _loanDistribution = body['user_details']['loan_distribution_id'];
+        _loanpaymentDays = body['user_details']['period'];
+        _currency = body['currency'];
+        _initDataFetched = true;
+      });
+    }
+  }
+
+  _format_currency(double d) {
+    String inString = d.toStringAsFixed(0);
+    var formatter = NumberFormat('#,##,000');
+    return formatter.format(double.tryParse(inString));
+  }
+
+  _refreshScreen() {
+    print('refreshed');
+    // _format_currency(1000.00);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: header(context, titleText: 'Dashboard'),
       drawer: drawer(context),
-      //backgroundColor: Color(0xFFF0F0F0),
       body: _buildBodyptions(context),
     );
   }
@@ -38,43 +82,69 @@ class _DashboardState extends State<DashboardPage> {
   }
 
   Container _loanSelecetor(context) {
-    String dropdownvalue = 'Ksh 1,000';
-    var items = [
-      'Ksh 1,000',
-      'Ksh 500',
-    ];
     return Container(
       child: Center(
         child: DropdownButton(
+          value: _loanDistribution,
+          isExpanded: false,
+          hint: Text("Select Loan"),
+          // validator: (value) => value == null ? 'Select Gender' : null,
+          onChanged: (value) {
+            setState(() {
+              _loanDistribution = value;
+            });
+          },
+          items: _loanDistributions.map((distribution) {
+            return DropdownMenuItem(
+              value: distribution['id'],
+              child: Text(_currency +
+                  " " +
+                  _format_currency(
+                      double.tryParse(distribution['max_amount']))),
+            );
+          }).toList(),
           dropdownColor: HexColor('#000000'),
           style: TextStyle(
             fontWeight: FontWeight.w700,
             color: Colors.white,
-            fontSize: 30.0,
+            fontSize: 25.0,
           ),
-          value: dropdownvalue,
           icon: Icon(Icons.keyboard_arrow_down),
-          iconSize: 38,
+          iconSize: 33,
           iconEnabledColor: Colors.white,
           iconDisabledColor: Colors.white,
-          items: items.map((String items) {
-            return DropdownMenuItem(
-                value: items,
-                child: Text(
-                  items,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    fontSize: 30.0,
-                  ),
-                ));
-          }).toList(),
-          onChanged: (String newValue) {
-            setState(() {
-              dropdownvalue = newValue;
-            });
-          },
         ),
+        // child: DropdownButton(
+        //   dropdownColor: HexColor('#000000'),
+        //   hint: Text("Select Gender"),
+        //   style: TextStyle(
+        //     fontWeight: FontWeight.w700,
+        //     color: Colors.white,
+        //     fontSize: 30.0,
+        //   ),
+        //   value: _loanDistributions,
+        //   icon: Icon(Icons.keyboard_arrow_down),
+        //   iconSize: 38,
+        //   iconEnabledColor: Colors.white,
+        //   iconDisabledColor: Colors.white,
+        //   items: _loanDistributions.map((distribution) {
+        //     return DropdownMenuItem(
+        //         value: distribution['id'],
+        //         child: Text(
+        //           distribution['max_amount'],
+        //           style: TextStyle(
+        //             fontWeight: FontWeight.w700,
+        //             color: Colors.white,
+        //             fontSize: 30.0,
+        //           ),
+        //         ));
+        //   }).toList(),
+        //   onChanged: (value) {
+        //     setState(() {
+        //       _loanDistribution = value;
+        //     });
+        //   },
+        // ),
       ),
       color: HexColor('#4A1F1F'),
     );
@@ -92,7 +162,7 @@ class _DashboardState extends State<DashboardPage> {
               child: Padding(
                 padding: const EdgeInsets.all(13.0),
                 child: Text(
-                  "7 Days",
+                  "$_loanpaymentDays Days",
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: HexColor('#4A1F1F'),
@@ -139,19 +209,35 @@ class _DashboardState extends State<DashboardPage> {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.info_outline,
-                    size: 20.0,
-                    color: HexColor('#000000'),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 20.0,
+                        color: HexColor('#000000'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 5.0),
+                        child: Text(
+                          "LOAN DETAILS",
+                          style: TextStyle(
+                              fontSize: 16.0, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 5.0),
-                    child: Text(
-                      "LOAN DETAILS",
-                      style: TextStyle(
-                          fontSize: 16.0, fontWeight: FontWeight.w600),
+                  Spacer(),
+                  ElevatedButton.icon(
+                    label:
+                        Text('Refresh', style: TextStyle(color: Colors.white)),
+                    icon: Icon(
+                      Icons.refresh,
+                      color: Colors.white,
+                      size: 24.0,
                     ),
-                  ),
+                    onPressed: () => _refreshScreen(),
+                    style: ElevatedButton.styleFrom(primary: Colors.orange),
+                  )
                 ],
               ),
               Padding(
