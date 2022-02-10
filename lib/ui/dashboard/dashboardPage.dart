@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kybee/api/api.dart';
-import 'package:kybee/common/theme_helper.dart';
 import 'package:kybee/ui/loading.dart';
-import 'package:kybee/ui/loan/LoanApprovedPage.dart';
+import 'package:kybee/ui/loan/PendingApprovalPage.dart';
+import 'package:kybee/ui/profile/basicDetailsPage.dart';
 import 'package:kybee/widgets/drawer.dart';
 import 'package:kybee/widgets/headerMain.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -76,7 +76,38 @@ class _DashboardState extends State<DashboardPage> {
     var res = await CallApi().postData(data, 'loan/apply_loan');
     var body = json.decode(res.body);
 
-    //if (body['success']) {}
+    if (body['success']) {
+      Navigator.pop(context);
+      return Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PendingApprovalPage(),
+        ),
+      );
+    } else {
+      var snacTime = body['error_code'] == 1 ? 20000 : 15000;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: Duration(milliseconds: snacTime),
+          content: Text(body['message']),
+          action: SnackBarAction(
+            label: body['error_code'] == 1 ? 'TAKE ME THERE' : 'X',
+            textColor: Colors.orange,
+            onPressed: () {
+              if (body['error_code'] == 1) {
+                return Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BasicDetailsPage(),
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+      );
+    }
 
     Navigator.pop(context);
   }

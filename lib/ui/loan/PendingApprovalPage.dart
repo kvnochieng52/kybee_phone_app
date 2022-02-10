@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kybee/api/api.dart';
 import 'package:kybee/common/theme_helper.dart';
 import 'package:kybee/ui/dashboard/dashboardPage.dart';
 import 'package:kybee/ui/login.dart';
@@ -12,16 +15,37 @@ import 'package:kybee/ui/profile/contactDetailsPage.dart';
 // import 'registration_page.dart';
 import 'package:kybee/widgets/header_widget.dart';
 
-class LoanApprovedPage extends StatefulWidget {
-  // const LoanApprovedPage({Key? key}): super(key:key);
+class PendingApprovalPage extends StatefulWidget {
+  // const PendingApprovalPage({Key? key}): super(key:key);
 
   @override
-  _LoanApprovedPageState createState() => _LoanApprovedPageState();
+  _PendingApprovalPageState createState() => _PendingApprovalPageState();
 }
 
-class _LoanApprovedPageState extends State<LoanApprovedPage> {
-  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+class _PendingApprovalPageState extends State<PendingApprovalPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _initDataFetched = false;
+  String _message;
+
+  void initState() {
+    super.initState();
+    _getInitData();
+  }
+
+  _getInitData() async {
+    var data = {
+      'code': 'PENDING_REVIEW_MSG',
+    };
+    var res = await CallApi().postData(data, 'app_settings/get_settings');
+    var body = json.decode(res.body);
+
+    if (body['success']) {
+      setState(() {
+        _initDataFetched = true;
+        _message = body['data']['setting_value'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +55,7 @@ class _LoanApprovedPageState extends State<LoanApprovedPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          'Loan Approved',
+          'Loan Pending Approval',
           style: TextStyle(
             fontSize: 16.0,
           ),
@@ -48,7 +72,7 @@ class _LoanApprovedPageState extends State<LoanApprovedPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: ListTile(
                   title: Text(
-                    "LOAN APPROVED!",
+                    "LOAN PENDING APPROVAL!",
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
@@ -58,7 +82,7 @@ class _LoanApprovedPageState extends State<LoanApprovedPage> {
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: Text(
-                      "Your Loan has been approved and disbursed to your M-pesa number",
+                      _initDataFetched ? _message : "Loading...",
                       style: TextStyle(
                         fontSize: 16.9,
                       ),
@@ -66,7 +90,7 @@ class _LoanApprovedPageState extends State<LoanApprovedPage> {
                   ),
                   leading: CircleAvatar(
                       backgroundColor: Theme.of(context).primaryColor,
-                      child: Icon(Icons.check)),
+                      child: Icon(Icons.info_outline)),
                   onTap: () => null,
                 ),
               ),
