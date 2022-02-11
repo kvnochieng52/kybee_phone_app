@@ -33,6 +33,10 @@ class _DashboardState extends State<DashboardPage> {
 
   bool _initDataFetched = false;
 
+  bool _activeLoan = false;
+
+  var _activeLoanDetails;
+
   void initState() {
     super.initState();
     _getInitData();
@@ -120,6 +124,7 @@ class _DashboardState extends State<DashboardPage> {
       'user_id': user['id'],
     };
     var res = await CallApi().postData(data, 'loan/dashboard_init');
+
     var body = json.decode(res.body);
 
     if (body['success']) {
@@ -136,6 +141,8 @@ class _DashboardState extends State<DashboardPage> {
         _applicationDateFormatted =
             body['default_loan']['application_date_formatted'];
         _initDataFetched = true;
+        _activeLoan = body['active_loan'];
+        _activeLoanDetails = body['active_loan_details'];
       });
     }
   }
@@ -153,12 +160,125 @@ class _DashboardState extends State<DashboardPage> {
     Navigator.pop(context);
   }
 
+  _activeLoanScreen(context) {
+    return ListView(children: <Widget>[
+      Container(
+        // margin: const EdgeInsets.only(top: 10.0),
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(10.0),
+            child: ListView(
+              physics: ClampingScrollPhysics(),
+              shrinkWrap: true,
+              children: [
+                Row(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 20.0,
+                          color: HexColor('#000000'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5.0),
+                          child: Text(
+                            "LOAN STATUS",
+                            style: TextStyle(
+                                fontSize: 16.0, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Spacer(),
+                    ElevatedButton.icon(
+                      label: Text('Refresh',
+                          style: TextStyle(color: Colors.white)),
+                      icon: Icon(
+                        Icons.refresh,
+                        color: Colors.white,
+                        size: 24.0,
+                      ),
+                      onPressed: () => _refreshScreen(context),
+                      style: ElevatedButton.styleFrom(primary: Colors.orange),
+                    )
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        "Total Repayment Amount",
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                      Text(
+                        "$_currency $_loanDisbursed",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        "Application Date",
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                      Text(
+                        "$_currency $_loanDisbursed",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        "Due Date",
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                      Text(
+                        "$_currency $_loanDisbursed",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      )
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: header(context, titleText: 'Dashboard'),
       drawer: drawer(context),
-      body: _buildBodyptions(context),
+      body:
+          _activeLoan ? _activeLoanScreen(context) : _buildBodyptions(context),
     );
   }
 
