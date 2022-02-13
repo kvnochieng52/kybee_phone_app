@@ -44,23 +44,25 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
       'user_id': user['id'],
     };
     var res = await CallApi().postData(data, 'profile/details');
-    var body = json.decode(res.body);
-
-    setState(() {
-      _genders = body['genders'];
-    });
-
-    if (body['success']) {
+    if (res.statusCode == 200) {
+      var body = json.decode(res.body);
       setState(() {
-        _firstNameController.text = body['data']['first_name'];
-        _middleNameController.text = body['data']['middle_name'];
-        _lastNameController.text = body['data']['last_name'];
-        _idNumberController.text = body['data']['id_number'];
-        _emailController.text = body['data']['email'];
-        _dobController.text = body['data']['date_of_birth'];
-        _gender = body['data']['gender_id'];
+        _genders = body['genders'];
       });
+
+      if (body['success']) {
+        setState(() {
+          _firstNameController.text = body['data']['first_name'];
+          _middleNameController.text = body['data']['middle_name'];
+          _lastNameController.text = body['data']['last_name'];
+          _idNumberController.text = body['data']['id_number'];
+          _emailController.text = body['data']['email'];
+          _dobController.text = body['data']['date_of_birth'];
+          _gender = body['data']['gender_id'];
+        });
+      }
     }
+
     setState(() {
       _initDataFetched = true;
     });

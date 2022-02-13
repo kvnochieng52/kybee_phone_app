@@ -49,23 +49,30 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
       'user_id': user['id'],
     };
     var res = await CallApi().postData(data, 'profile/details');
-    var body = json.decode(res.body);
 
-    setState(() {
-      _relationTypes = body['relation_types'];
-    });
+    if (res.statusCode == 200) {
+      var body = json.decode(res.body);
 
-    if (body['success']) {
-      if (body['user_referees'].length > 0) {
-        setState(() {
-          _refOneNameController.text = body['user_referees'][0]['referee_name'];
-          _refOneMobileController.text = body['user_referees'][0]['telephone'];
-          _relationOne = body['user_referees'][0]['relationship_type_id'];
+      setState(() {
+        _relationTypes = body['relation_types'];
+      });
 
-          _refTwoNameController.text = body['user_referees'][1]['referee_name'];
-          _refTwoMobileController.text = body['user_referees'][1]['telephone'];
-          _relationTwo = body['user_referees'][1]['relationship_type_id'];
-        });
+      if (body['success']) {
+        if (body['user_referees'].length > 0) {
+          setState(() {
+            _refOneNameController.text =
+                body['user_referees'][0]['referee_name'];
+            _refOneMobileController.text =
+                body['user_referees'][0]['telephone'];
+            _relationOne = body['user_referees'][0]['relationship_type_id'];
+
+            _refTwoNameController.text =
+                body['user_referees'][1]['referee_name'];
+            _refTwoMobileController.text =
+                body['user_referees'][1]['telephone'];
+            _relationTwo = body['user_referees'][1]['relationship_type_id'];
+          });
+        }
       }
     }
 

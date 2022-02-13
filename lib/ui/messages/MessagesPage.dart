@@ -6,6 +6,7 @@ import 'package:kybee/common/theme_helper.dart';
 import 'package:kybee/ui/dashboard/dashboardPage.dart';
 import 'package:kybee/ui/login.dart';
 import 'package:kybee/ui/profile/contactDetailsPage.dart';
+import 'package:kybee/widgets/drawer.dart';
 
 // import 'forgot_password_page.dart';
 // import 'profile_page.dart';
@@ -35,6 +36,8 @@ class _MessagesPageState extends State<MessagesPage> {
           ),
         ),
       ),
+
+      drawer: drawer(context),
       body: ListView(
         physics: ClampingScrollPhysics(),
         shrinkWrap: true,

@@ -47,27 +47,30 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
       'user_id': user['id'],
     };
     var res = await CallApi().postData(data, 'profile/details');
-    var body = json.decode(res.body);
 
-    setState(() {
-      _counties = body['counties'];
-      _maritalStatuses = body['marital_statuses'];
-      _educationLevels = body['education_levels'];
-      _employmentStatuses = body['employment_statuses'];
-      _salaryRanges = body['salary_ranges'];
-    });
+    if (res.statusCode == 200) {
+      var body = json.decode(res.body);
 
-    if (body['success']) {
       setState(() {
-        _companyAddressController.text = body['data']['company_address'];
-        _userAddressController.text = body['data']['home_address'];
-        _maritalStatus = body['data']['marital_status_id'];
-        _educationLevel = body['data']['education_level_id'];
-        _employmentStatus = body['data']['employment_status_id'];
-        _salaryRange = body['data']['salary_range'];
-        _companyCounty = body['data']['company_county_id'];
-        _userCounty = body['data']['county_id'];
+        _counties = body['counties'];
+        _maritalStatuses = body['marital_statuses'];
+        _educationLevels = body['education_levels'];
+        _employmentStatuses = body['employment_statuses'];
+        _salaryRanges = body['salary_ranges'];
       });
+
+      if (body['success']) {
+        setState(() {
+          _companyAddressController.text = body['data']['company_address'];
+          _userAddressController.text = body['data']['home_address'];
+          _maritalStatus = body['data']['marital_status_id'];
+          _educationLevel = body['data']['education_level_id'];
+          _employmentStatus = body['data']['employment_status_id'];
+          _salaryRange = body['data']['salary_range'];
+          _companyCounty = body['data']['company_county_id'];
+          _userCounty = body['data']['county_id'];
+        });
+      }
     }
     setState(() {
       _initDataFetched = true;
@@ -121,6 +124,7 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
       backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           'Other Details',
           style: TextStyle(

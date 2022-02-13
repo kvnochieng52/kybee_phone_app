@@ -32,12 +32,15 @@ class _TermsandConditionsPageState extends State<TermsandConditionsPage> {
 
   _getInitData() async {
     var res = await CallApi().getData('terms_conditions_fetch');
-    var body = json.decode(res.body);
-    if (body['success']) {
-      setState(() {
-        _terms = body['terms']['setting_value'];
-        _termsFetched = true;
-      });
+
+    if (res.statusCode == 200) {
+      var body = json.decode(res.body);
+      if (body['success']) {
+        setState(() {
+          _terms = body['terms']['setting_value'];
+          _termsFetched = true;
+        });
+      }
     }
   }
 

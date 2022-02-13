@@ -31,6 +31,15 @@ class _DashboardState extends State<DashboardPage> {
   String _applicationDateFormatted = "-";
   String _dueDateFormatted = "-";
 
+  String _repaymentTotalAmount = "-";
+  String _repaymentApplicationDate = "-";
+  String _repaymentDueDate = "-";
+  String _repaymentLoanStatus = "-";
+  String _repaymentColrCode = "#000000";
+  String _repaymentLoanDetails = "-";
+  String _repaymentLoanBalance = "-";
+  String _repaymentLoanAmountPaid = "-";
+
   bool _initDataFetched = false;
 
   bool _activeLoan = false;
@@ -123,27 +132,48 @@ class _DashboardState extends State<DashboardPage> {
     var data = {
       'user_id': user['id'],
     };
+
     var res = await CallApi().postData(data, 'loan/dashboard_init');
 
-    var body = json.decode(res.body);
+    if (res.statusCode == 200) {
+      var body = await json.decode(res.body);
 
-    if (body['success']) {
-      setState(() {
-        _loanDistributions = body['loan_distributions'];
-        _loanDistribution = body['user_details']['loan_distribution_id'];
-        _loanpaymentDays = body['user_details']['period'];
-        _currency = body['currency'];
-        _totalLoanAmount = body['default_loan']['total_loan_amount_formatted'];
-        _intrest = body['default_loan']['intrest_formatted'];
-        _commission = body['default_loan']['commission_formatted'];
-        _loanDisbursed = body['default_loan']['disbursed_formatted'];
-        _dueDateFormatted = body['default_loan']['due_date_formatted'];
-        _applicationDateFormatted =
-            body['default_loan']['application_date_formatted'];
-        _initDataFetched = true;
-        _activeLoan = body['active_loan'];
-        _activeLoanDetails = body['active_loan_details'];
-      });
+      if (body['success']) {
+        setState(() {
+          _loanDistributions = body['loan_distributions'];
+          _loanDistribution = body['user_details']['loan_distribution_id'];
+          _loanpaymentDays = body['user_details']['period'];
+          _currency = body['currency'];
+          _totalLoanAmount =
+              body['default_loan']['total_loan_amount_formatted'];
+          _intrest = body['default_loan']['intrest_formatted'];
+          _commission = body['default_loan']['commission_formatted'];
+          _loanDisbursed = body['default_loan']['disbursed_formatted'];
+          _dueDateFormatted = body['default_loan']['due_date_formatted'];
+          _applicationDateFormatted =
+              body['default_loan']['application_date_formatted'];
+          _initDataFetched = true;
+
+          if (body['active_loan']) {
+            _repaymentTotalAmount =
+                body['active_loan_details']['total_amount_formatted'];
+            _repaymentApplicationDate =
+                body['active_loan_details']['application_date_formatted'];
+            _repaymentDueDate =
+                body['active_loan_details']['due_date_formatted'];
+            _activeLoan = body['active_loan'];
+            _activeLoanDetails = body['active_loan_details'];
+            _repaymentLoanStatus =
+                body['active_loan_details']['loan_status_name'];
+            _repaymentColrCode = body['active_loan_details']['color_code'];
+            _repaymentLoanDetails = body['active_loan_details']['description'];
+            _repaymentLoanBalance =
+                body['active_loan_details']['balance_formatted'];
+            _repaymentLoanAmountPaid =
+                body['active_loan_details']['amount_paid_formatted'];
+          }
+        });
+      }
     }
   }
 
@@ -210,11 +240,78 @@ class _DashboardState extends State<DashboardPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
+                        "Loan Status",
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                      DecoratedBox(
+                        decoration:
+                            BoxDecoration(color: HexColor(_repaymentColrCode)),
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            _repaymentLoanStatus,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 18.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
                         "Total Repayment Amount",
                         style: TextStyle(fontSize: 18.0),
                       ),
                       Text(
-                        "$_currency $_loanDisbursed",
+                        "$_currency $_repaymentTotalAmount",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        "Amount Paid",
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                      Text(
+                        "$_currency $_repaymentLoanAmountPaid",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        "Loan Balance",
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                      Text(
+                        "$_currency $_repaymentLoanBalance",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
@@ -234,7 +331,7 @@ class _DashboardState extends State<DashboardPage> {
                         style: TextStyle(fontSize: 18.0),
                       ),
                       Text(
-                        "$_currency $_loanDisbursed",
+                        "$_repaymentApplicationDate",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
@@ -254,7 +351,7 @@ class _DashboardState extends State<DashboardPage> {
                         style: TextStyle(fontSize: 18.0),
                       ),
                       Text(
-                        "$_currency $_loanDisbursed",
+                        "$_repaymentDueDate",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
@@ -264,6 +361,28 @@ class _DashboardState extends State<DashboardPage> {
                     ],
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 20.0,
+                        color: HexColor(_repaymentColrCode),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 6.0),
+                        child: Text(
+                          _repaymentLoanDetails,
+                          style: TextStyle(
+                            color: HexColor(_repaymentColrCode),
+                            fontSize: 18.0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),

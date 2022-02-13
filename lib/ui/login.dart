@@ -27,6 +27,9 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   _buidTelephone(context) {
+    setState(() {
+      _telephoneController.text = '0713295853';
+    });
     return Container(
       child: TextFormField(
         controller: _telephoneController,
@@ -43,6 +46,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _buildPassword(context) {
+    setState(() {
+      _passwordController.text = '1234';
+    });
     return Container(
       child: TextFormField(
         controller: _passwordController,
