@@ -35,7 +35,7 @@ dependencies:
   http: ^0.12.2
   intl: ^0.17.0
   permission_handler: ^5.0.0 
-  contact_picker: 
+  contact_picker:
  
 
 dev_dependencies:

@@ -1,19 +1,18 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kybee/models/configuration.dart';
 
 class CallApi {
   final String _url = Configuration.API_URL;
 
   postData(data, apiUrl) async {
-    var fullUrl = _url + apiUrl + await _getToken();
+    var fullUrl = _url + apiUrl;
     return await http.post(fullUrl,
         body: jsonEncode(data), headers: _setHeaders());
   }
 
   getData(apiUrl) async {
-    var fullUrl = _url + apiUrl + await _getToken();
+    var fullUrl = _url + apiUrl;
     return await http.get(fullUrl, headers: _setHeaders());
   }
 
@@ -21,10 +20,4 @@ class CallApi {
         'Content-type': 'application/json',
         'Accept': 'application/json',
       };
-
-  _getToken() async {
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
-    var token = localStorage.getString('token');
-    return '?token=$token';
-  }
 }

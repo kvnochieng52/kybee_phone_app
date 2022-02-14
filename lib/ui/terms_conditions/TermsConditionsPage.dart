@@ -23,7 +23,7 @@ class _TermsandConditionsPageState extends State<TermsandConditionsPage> {
 
   var _terms;
   var _termsFetched = false;
-  bool _accepted_terms = false;
+  bool _accepted_terms = true;
 
   void initState() {
     super.initState();

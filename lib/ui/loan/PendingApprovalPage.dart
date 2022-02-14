@@ -1,19 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kybee/api/api.dart';
-import 'package:kybee/common/theme_helper.dart';
 import 'package:kybee/ui/dashboard/dashboardPage.dart';
-import 'package:kybee/ui/login.dart';
-import 'package:kybee/ui/profile/contactDetailsPage.dart';
-
-// import 'forgot_password_page.dart';
-// import 'profile_page.dart';
-// import 'registration_page.dart';
-import 'package:kybee/widgets/header_widget.dart';
 
 class PendingApprovalPage extends StatefulWidget {
   // const PendingApprovalPage({Key? key}): super(key:key);

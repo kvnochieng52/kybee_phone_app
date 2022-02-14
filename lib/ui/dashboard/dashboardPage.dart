@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:kybee/api/api.dart';
 import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/loan/PendingApprovalPage.dart';
+import 'package:kybee/ui/loan/RepayLoanPage.dart';
 import 'package:kybee/ui/profile/basicDetailsPage.dart';
 import 'package:kybee/widgets/drawer.dart';
 import 'package:kybee/widgets/headerMain.dart';
@@ -39,12 +40,12 @@ class _DashboardState extends State<DashboardPage> {
   String _repaymentLoanDetails = "-";
   String _repaymentLoanBalance = "-";
   String _repaymentLoanAmountPaid = "-";
+  int _repaymentLoanID;
+  int _repaymentLoanStatusID;
 
   bool _initDataFetched = false;
 
   bool _activeLoan = false;
-
-  var _activeLoanDetails;
 
   void initState() {
     super.initState();
@@ -71,6 +72,42 @@ class _DashboardState extends State<DashboardPage> {
             body['loan_details']['application_date_formatted'];
         _dueDateFormatted = body['loan_details']['due_date_formatted'];
       });
+    }
+
+    Navigator.pop(context);
+  }
+
+  _repayLoan(context) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RepayLoanPage(
+          loanID: _repaymentLoanID,
+        ),
+      ),
+    );
+  }
+
+  _closeLoan(context) async {
+    Loading().loader(context, "Loading...Please wait");
+
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    var data = {
+      'user_id': user['id'],
+      'loan_id': _repaymentLoanID,
+    };
+    var res = await CallApi().postData(data, 'loan/close_loan');
+    var body = json.decode(res.body);
+    if (body['success']) {
+      Navigator.pop(context);
+      return Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DashboardPage(),
+        ),
+      );
     }
 
     Navigator.pop(context);
@@ -136,8 +173,7 @@ class _DashboardState extends State<DashboardPage> {
     var res = await CallApi().postData(data, 'loan/dashboard_init');
 
     if (res.statusCode == 200) {
-      var body = await json.decode(res.body);
-
+      var body = json.decode(res.body);
       if (body['success']) {
         setState(() {
           _loanDistributions = body['loan_distributions'];
@@ -145,32 +181,39 @@ class _DashboardState extends State<DashboardPage> {
           _loanpaymentDays = body['user_details']['period'];
           _currency = body['currency'];
           _totalLoanAmount =
-              body['default_loan']['total_loan_amount_formatted'];
-          _intrest = body['default_loan']['intrest_formatted'];
-          _commission = body['default_loan']['commission_formatted'];
-          _loanDisbursed = body['default_loan']['disbursed_formatted'];
-          _dueDateFormatted = body['default_loan']['due_date_formatted'];
+              body['default_loan']['total_loan_amount_formatted'].toString();
+          _intrest = body['default_loan']['intrest_formatted'].toString();
+          _commission = body['default_loan']['commission_formatted'].toString();
+          _loanDisbursed =
+              body['default_loan']['disbursed_formatted'].toString();
+          _dueDateFormatted =
+              body['default_loan']['due_date_formatted'].toString();
           _applicationDateFormatted =
-              body['default_loan']['application_date_formatted'];
+              body['default_loan']['application_date_formatted'].toString();
           _initDataFetched = true;
 
           if (body['active_loan']) {
-            _repaymentTotalAmount =
-                body['active_loan_details']['total_amount_formatted'];
-            _repaymentApplicationDate =
-                body['active_loan_details']['application_date_formatted'];
+            _repaymentTotalAmount = body['active_loan_details']
+                    ['total_amount_formatted']
+                .toString();
+            _repaymentApplicationDate = body['active_loan_details']
+                    ['application_date_formatted']
+                .toString();
             _repaymentDueDate =
-                body['active_loan_details']['due_date_formatted'];
+                body['active_loan_details']['due_date_formatted'].toString();
             _activeLoan = body['active_loan'];
-            _activeLoanDetails = body['active_loan_details'];
+            //  _activeLoanDetails = body['active_loan_details'];
             _repaymentLoanStatus =
                 body['active_loan_details']['loan_status_name'];
             _repaymentColrCode = body['active_loan_details']['color_code'];
             _repaymentLoanDetails = body['active_loan_details']['description'];
             _repaymentLoanBalance =
-                body['active_loan_details']['balance_formatted'];
+                body['active_loan_details']['balance_formatted'].toString();
             _repaymentLoanAmountPaid =
-                body['active_loan_details']['amount_paid_formatted'];
+                body['active_loan_details']['amount_paid_formatted'].toString();
+            _repaymentLoanID = body['active_loan_details']['id'];
+            _repaymentLoanStatusID =
+                body['active_loan_details']['loan_status_id'];
           }
         });
       }
@@ -193,7 +236,6 @@ class _DashboardState extends State<DashboardPage> {
   _activeLoanScreen(context) {
     return ListView(children: <Widget>[
       Container(
-        // margin: const EdgeInsets.only(top: 10.0),
         child: Card(
           child: Padding(
             padding: EdgeInsets.all(10.0),
@@ -382,7 +424,35 @@ class _DashboardState extends State<DashboardPage> {
                       ),
                     ],
                   ),
-                )
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: (_repaymentLoanStatusID == 4 ||
+                          _repaymentLoanStatusID == 3)
+                      ? ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: HexColor('#4A1F1F'), // background
+                            onPrimary: HexColor('#4A1F1A'),
+                            shape: StadiumBorder(), // foreground
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
+                            child: Text(
+                              _repaymentLoanStatusID == 4
+                                  ? "Repay Loan"
+                                  : "Close",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          onPressed: () => _repaymentLoanStatusID == 4
+                              ? _repayLoan(context)
+                              : _closeLoan(context))
+                      : Text("-------------------------"),
+                ),
               ],
             ),
           ),
@@ -487,20 +557,6 @@ class _DashboardState extends State<DashboardPage> {
         ),
       ),
     );
-
-    // return Container(
-    //   child: Center(
-    //       child: Padding(
-    //     padding: const EdgeInsets.all(30.0),
-    //     child: Text(
-    //       "7 Days",
-    //       style: TextStyle(
-    //         backgroundColor: Colors.blue,
-    //       ),
-    //     ),
-    //   )),
-    //   color: HexColor('#4A1F1F'),
-    // );
   }
 
   Container _loanDetails(context) {
@@ -752,9 +808,7 @@ class _DashboardState extends State<DashboardPage> {
             child: Padding(
               padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
               child: Text(
-                _initDataFetched
-                    ? 'Apply Loan'.toUpperCase()
-                    : 'Loading...please wait',
+                _initDataFetched ? 'Apply Loan' : 'Loading...please wait',
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
