@@ -8,6 +8,7 @@ import 'package:kybee/common/theme_helper.dart';
 import 'package:intl/intl.dart';
 import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/profile/contactDetailsPage.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BasicDetailsPage extends StatefulWidget {

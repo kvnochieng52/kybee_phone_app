@@ -10,7 +10,9 @@ import 'package:kybee/ui/profile/basicDetailsPage.dart';
 import 'package:kybee/widgets/drawer.dart';
 import 'package:kybee/widgets/headerMain.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -47,9 +49,99 @@ class _DashboardState extends State<DashboardPage> {
 
   bool _activeLoan = false;
 
+  final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+  Position _currentPosition;
+  String _currentAddress;
+
   void initState() {
     super.initState();
+    _getPermission();
+    // _getLocationPermission();
     _getInitData();
+  }
+
+  _getPermission() async {
+    // final PermissionStatus sMSPermission = await Permission.sms.status;
+    final PermissionStatus locationPermission =
+        await Permission.location.status;
+    // final PermissionStatus contactPermission = await Permission.contacts.status;
+
+    // if (sMSPermission != PermissionStatus.granted ||
+    //     locationPermission != PermissionStatus.granted ||
+    //     contactPermission != PermissionStatus.granted) {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.sms,
+      Permission.contacts,
+      Permission.location,
+    ].request();
+
+    //if(locationPermission.sta)
+
+    if (statuses[Permission.location].isGranted) {
+      _getCurrentLocation();
+    } else {
+      print("Something went wrong");
+    }
+
+    // print(statuses[Permission.location]);
+    // print(statuses[Permission.sms]);
+    // print(statuses[Permission.contacts]);
+
+    // }
+
+    //   final PermissionStatus permission = await Permission.sms.status;
+    //   if (permission != PermissionStatus.granted &&
+    //       permission != PermissionStatus.denied) {
+    //     final Map<Permission, PermissionStatus> permissionStatus =
+    //         await [Permission.sms].request();
+    //     return permissionStatus[Permission.sms] ?? PermissionStatus.undetermined;
+    //   } else {
+    //     return permission;
+    //   }
+  }
+
+  // Future<PermissionStatus> _getLocationPermission() async {
+  //   final PermissionStatus permission = await Permission.location.status;
+  //   if (permission != PermissionStatus.granted &&
+  //       permission != PermissionStatus.denied) {
+  //     final Map<Permission, PermissionStatus> permissionStatus =
+  //         await [Permission.location].request();
+  //     return permissionStatus[Permission.location] ??
+  //         PermissionStatus.undetermined;
+  //   } else {
+  //     return permission;
+  //   }
+  // }
+
+  _getCurrentLocation() {
+    geolocator
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+        .then((Position position) {
+      setState(() {
+        _currentPosition = position;
+      });
+
+      _getAddressFromLatLng();
+    }).catchError((e) {
+      print(e);
+    });
+  }
+
+  _getAddressFromLatLng() async {
+    try {
+      List<Placemark> p = await geolocator.placemarkFromCoordinates(
+          _currentPosition.latitude, _currentPosition.longitude);
+
+      Placemark place = p[0];
+      setState(() {
+        _currentAddress =
+            "${place.locality}, ${place.administrativeArea}, ${place.subAdministrativeArea}, ${place.country}, ${place.thoroughfare}, ${place.subThoroughfare}";
+      });
+
+      print("LOOOOOOOOOCATIOOOOOOOOOOOOOOOOOOOOOOOOOOON: " + _currentAddress);
+    } catch (e) {
+      print(e);
+    }
   }
 
   _calculateLoan(context) async {
