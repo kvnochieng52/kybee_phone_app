@@ -1,15 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:kybee/common/theme_helper.dart';
-import 'package:kybee/ui/dashboard/dashboardPage.dart';
-import 'package:kybee/ui/login.dart';
-import 'package:kybee/ui/profile/contactDetailsPage.dart';
-
-// import 'forgot_password_page.dart';
-// import 'profile_page.dart';
-// import 'registration_page.dart';
-import 'package:kybee/widgets/header_widget.dart';
+import 'package:kybee/api/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ContactUsPage extends StatefulWidget {
   // const ContactUsPage({Key? key}): super(key:key);
@@ -19,22 +14,38 @@ class ContactUsPage extends StatefulWidget {
 }
 
 class _ContactUsPageState extends State<ContactUsPage> {
-  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String _firstname;
-  String _county;
-  var county_items = [
-    'Nairobi',
-    'Kisumu',
-    'Mombasa',
-    'Kitui',
-    'Embu',
-    'Machakos',
-    'Nyandarua',
-    'Kirinyaga',
-    'Muranga'
-  ];
+  bool _initDataFetched = false;
+  String _phone = 'Loading...';
+  String _watsapp = 'Loading...';
+  String _email = 'Loading...';
+
+  void initState() {
+    super.initState();
+    _getInitData();
+  }
+
+  _getInitData() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    var data = {
+      'user_id': user['id'],
+    };
+    var res =
+        await CallApi().postData(data, 'app_settings/get_contact_details');
+    var body = json.decode(res.body);
+
+    if (body['success']) {
+      setState(() {
+        _initDataFetched = true;
+        _phone = body['phone'];
+        _watsapp = body['watsapp'];
+        _email = body['email'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +79,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: Text(
-                      "0712345678",
+                      _phone,
                       style: TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
@@ -113,7 +124,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: Text(
-                      "0718765432",
+                      _watsapp,
                       style: TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
@@ -158,7 +169,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: Text(
-                      "support@kybeeloans.com",
+                      _email,
                       style: TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,

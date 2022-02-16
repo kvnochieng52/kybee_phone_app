@@ -111,15 +111,17 @@ class _DashboardState extends State<DashboardPage> {
 
   _getAddressFromLatLng() async {
     try {
-      List<Placemark> p = await geolocator.placemarkFromCoordinates(
-          _currentPosition.latitude, _currentPosition.longitude);
+      if (await Permission.locationWhenInUse.serviceStatus.isEnabled) {
+        List<Placemark> p = await geolocator.placemarkFromCoordinates(
+            _currentPosition.latitude, _currentPosition.longitude);
 
-      Placemark place = p[0];
-      setState(() {
-        _currentAddress =
-            "${place.locality}, ${place.administrativeArea}, ${place.subAdministrativeArea}, ${place.country}, ${place.thoroughfare}, ${place.subThoroughfare}";
-        _currentPositionFetched = true;
-      });
+        Placemark place = p[0];
+        setState(() {
+          _currentAddress =
+              "${place.locality}, ${place.administrativeArea}, ${place.subAdministrativeArea}, ${place.country}, ${place.thoroughfare}, ${place.subThoroughfare}";
+          _currentPositionFetched = true;
+        });
+      }
     } catch (e) {
       //print(e);
     }
