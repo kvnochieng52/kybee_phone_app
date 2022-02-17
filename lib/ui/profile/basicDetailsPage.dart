@@ -441,6 +441,4 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
       ),
     );
   }
-
-  LoginPage() {}
 }

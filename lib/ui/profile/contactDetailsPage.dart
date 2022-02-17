@@ -42,19 +42,6 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
   void initState() {
     super.initState();
     _getInitData();
-    printContactsNumber();
-  }
-
-  void printContactsNumber() async {
-    Iterable<contactService.Contact> contacts =
-        await contactService.ContactsService.getContacts(withThumbnails: false);
-    List<contactService.Contact> contactsList = contacts.toList();
-
-    print(contactsList);
-    // now print first 50 number's contancts
-    // for (int i = 0; i < 50; i++) {
-    //   contactsList[0].phones.first.value.toString();
-    // }
   }
 
   _getInitData() async {

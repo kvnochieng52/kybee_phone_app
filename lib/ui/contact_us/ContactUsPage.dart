@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kybee/api/api.dart';
+import 'package:kybee/widgets/drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ContactUsPage extends StatefulWidget {
@@ -60,6 +61,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
           ),
         ),
       ),
+      drawer: drawer(context),
       body: ListView(
         physics: ClampingScrollPhysics(),
         shrinkWrap: true,

@@ -1,17 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:kybee/common/theme_helper.dart';
-import 'package:kybee/ui/dashboard/dashboardPage.dart';
-import 'package:kybee/ui/login.dart';
-import 'package:kybee/ui/profile/contactDetailsPage.dart';
+import 'package:kybee/api/api.dart';
+import 'package:kybee/ui/loading.dart';
+import 'package:kybee/ui/progress.dart';
 import 'package:kybee/widgets/drawer.dart';
-
-// import 'forgot_password_page.dart';
-// import 'profile_page.dart';
-// import 'registration_page.dart';
-import 'package:kybee/widgets/header_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MessagesPage extends StatefulWidget {
   // const MessagesPage({Key? key}): super(key:key);
@@ -21,209 +17,103 @@ class MessagesPage extends StatefulWidget {
 }
 
 class _MessagesPageState extends State<MessagesPage> {
-  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  var refreshKey = GlobalKey<RefreshIndicatorState>();
+  bool _initDataFetched = false;
+  List _notifications = [];
+
+  void initState() {
+    super.initState();
+    _getInitData();
+  }
+
+  _getInitData() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    var data = {
+      'user_id': user['id'],
+    };
+    var res = await CallApi().postData(data, 'notification/get');
+    var body = json.decode(res.body);
+
+    if (body['success']) {
+      setState(() {
+        _initDataFetched = true;
+        _notifications = body['notifications'];
+      });
+    }
+  }
+
+  Future<Null> _refreshList() async {
+    refreshKey.currentState?.show(atTop: false);
+    await Future.delayed(Duration(seconds: 3));
+    _getInitData();
+
+    return null;
+  }
+
+  Widget _buildBody(context) {
+    return ListView.builder(
+        // physics: ClampingScrollPhysics(),
+        // shrinkWrap: true,
+        itemCount: _notifications.length,
+        padding: EdgeInsets.all(8.5),
+        itemBuilder: (BuildContext context, int position) {
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListTile(
+                title: Row(
+                  children: [
+                    Icon(Icons.chat, color: HexColor('#4A1F1F')),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 5.0),
+                      child: Text(
+                        " ${_notifications[position]['created_formatted']}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: HexColor('#4A1F1F'),
+                          //fontSize: 18.9,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 5.0),
+                  child: Text(
+                    " ${_notifications[position]['message']}",
+                    style: TextStyle(
+                      fontSize: 16.0,
+                    ),
+                  ),
+                ),
+                onTap: () => null,
+              ),
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.white,
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(
-          'Messages',
-          style: TextStyle(
-            fontSize: 16.0,
+        // backgroundColor: Colors.white,
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: Text(
+            'Messages',
+            style: TextStyle(
+              fontSize: 16.0,
+            ),
           ),
         ),
-      ),
-
-      drawer: drawer(context),
-      body: ListView(
-        physics: ClampingScrollPhysics(),
-        shrinkWrap: true,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 5.0, right: 5.0),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Row(
-                    children: [
-                      Icon(Icons.chat, color: HexColor('#4A1F1F')),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
-                        child: Text(
-                          "8th-January-2022",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: HexColor('#4A1F1F'),
-                            //fontSize: 18.9,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      " Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ),
-                  onTap: () => null,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 5.0, right: 5.0),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Row(
-                    children: [
-                      Icon(Icons.chat, color: HexColor('#4A1F1F')),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
-                        child: Text(
-                          "6th-January-2022",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: HexColor('#4A1F1F'),
-                            //fontSize: 18.9,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      " Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ),
-                  onTap: () => null,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 5.0, right: 5.0),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Row(
-                    children: [
-                      Icon(Icons.chat, color: HexColor('#4A1F1F')),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
-                        child: Text(
-                          "1th-January-2022",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: HexColor('#4A1F1F'),
-                            //fontSize: 18.9,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      " Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ),
-                  onTap: () => null,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 5.0, right: 5.0),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Row(
-                    children: [
-                      Icon(Icons.chat, color: HexColor('#4A1F1F')),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
-                        child: Text(
-                          "21st-December-2021",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: HexColor('#4A1F1F'),
-                            //fontSize: 18.9,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      " Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ),
-                  onTap: () => null,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 5.0, right: 5.0),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Row(
-                    children: [
-                      Icon(Icons.chat, color: HexColor('#4A1F1F')),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
-                        child: Text(
-                          "15th-December-2021",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: HexColor('#4A1F1F'),
-                            //fontSize: 18.9,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      " Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ),
-                  onTap: () => null,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+        drawer: drawer(context),
+        body: RefreshIndicator(
+          key: refreshKey,
+          child: _initDataFetched ? _buildBody(context) : circularProgress(),
+          onRefresh: _refreshList,
+        ));
   }
 }

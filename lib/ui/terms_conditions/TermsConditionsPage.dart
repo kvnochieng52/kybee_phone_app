@@ -9,10 +9,6 @@ import 'package:kybee/api/api.dart';
 import 'package:kybee/ui/progress.dart';
 
 class TermsandConditionsPage extends StatefulWidget {
-  // const TermsandConditionsPage({Key? key}): super(key:key);
-
-  //test
-
   @override
   _TermsandConditionsPageState createState() => _TermsandConditionsPageState();
 }

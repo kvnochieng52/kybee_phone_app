@@ -49,6 +49,7 @@ class _DashboardState extends State<DashboardPage> {
   bool _initDataFetched = false;
 
   bool _activeLoan = false;
+  bool _applyLoanLoading = false;
 
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position _currentPosition;
@@ -125,6 +126,12 @@ class _DashboardState extends State<DashboardPage> {
     } catch (e) {
       //print(e);
     }
+  }
+
+  _refreshStatus(context) {
+    Navigator.pop(context);
+    return Navigator.push(
+        context, MaterialPageRoute(builder: (context) => DashboardPage()));
   }
 
   _calculateLoan(context) async {
@@ -233,6 +240,10 @@ class _DashboardState extends State<DashboardPage> {
         ),
       );
     }
+
+    setState(() {
+      _applyLoanLoading = true;
+    });
 
     Navigator.pop(context);
   }
@@ -349,7 +360,7 @@ class _DashboardState extends State<DashboardPage> {
                         color: Colors.white,
                         size: 24.0,
                       ),
-                      onPressed: () => _refreshScreen(context),
+                      onPressed: () => _refreshStatus(context),
                       style: ElevatedButton.styleFrom(primary: Colors.orange),
                     )
                   ],
@@ -893,7 +904,9 @@ class _DashboardState extends State<DashboardPage> {
                     color: Colors.white),
               ),
             ),
-            onPressed: () => _applyLoan(context)),
+            onPressed: () => _initDataFetched || _applyLoanLoading
+                ? _applyLoan(context)
+                : null),
       ),
     );
   }

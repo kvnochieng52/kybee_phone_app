@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kybee/ui/contact_us/ContactUsPage.dart';
 import 'package:kybee/ui/dashboard/dashboardPage.dart';
-import 'package:kybee/ui/login.dart';
+import 'package:kybee/ui/logout/LogOutPage.dart';
 import 'package:kybee/ui/messages/MessagesPage.dart';
 import 'package:kybee/ui/profile/basicDetailsPage.dart';
 import 'package:kybee/ui/terms_conditions/TermsConditionsPage.dart';
@@ -86,11 +86,6 @@ Drawer drawer(context) {
               ),
             ),
           ),
-          _customListTyle(
-            Icons.info,
-            'Help',
-            () => null,
-          ),
 
           _customListTyle(
             Icons.logout,
@@ -98,7 +93,7 @@ Drawer drawer(context) {
             () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => LoginPage(),
+                builder: (context) => LogOutPage(),
               ),
             ),
           ),

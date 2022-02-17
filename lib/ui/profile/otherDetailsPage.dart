@@ -489,8 +489,9 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
                           color: Colors.white),
                     ),
                   ),
-                  onPressed: () =>
-                      _saveProfileDetails(context, 'other_details'),
+                  onPressed: () => _initDataFetched
+                      ? _saveProfileDetails(context, 'other_details')
+                      : null,
                 ),
               ),
             ]),
