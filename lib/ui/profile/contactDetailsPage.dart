@@ -174,8 +174,7 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
         permission != PermissionStatus.denied) {
       final Map<Permission, PermissionStatus> permissionStatus =
           await [Permission.contacts].request();
-      return permissionStatus[Permission.contacts] ??
-          PermissionStatus.undetermined;
+      return permissionStatus[Permission.contacts];
     } else {
       return permission;
     }

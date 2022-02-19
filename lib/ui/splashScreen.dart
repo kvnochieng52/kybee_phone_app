@@ -1,8 +1,5 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-
-import 'package:kybee/ui/login.dart';
 import 'package:kybee/ui/terms_conditions/TermsConditionsPage.dart';
 
 class SplashScreen extends StatefulWidget {

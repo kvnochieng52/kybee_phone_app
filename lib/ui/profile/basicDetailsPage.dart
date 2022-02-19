@@ -46,7 +46,7 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
         permission != PermissionStatus.denied) {
       final Map<Permission, PermissionStatus> permissionStatus =
           await [Permission.sms].request();
-      return permissionStatus[Permission.sms] ?? PermissionStatus.undetermined;
+      return permissionStatus[Permission.sms];
     } else {
       return permission;
     }

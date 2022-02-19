@@ -13,7 +13,6 @@ import 'package:kybee/widgets/headerMain.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:geolocator/geolocator.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -51,8 +50,8 @@ class _DashboardState extends State<DashboardPage> {
   bool _activeLoan = false;
   bool _applyLoanLoading = false;
 
-  final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
-  Position _currentPosition;
+  // final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+  // Position _currentPosition;
   String _currentAddress = '';
   bool _currentPositionFetched = false;
 
@@ -67,72 +66,67 @@ class _DashboardState extends State<DashboardPage> {
         permission != PermissionStatus.denied) {
       final Map<Permission, PermissionStatus> permissionStatus =
           await [Permission.location].request();
-      return permissionStatus[Permission.location] ??
-          PermissionStatus.undetermined;
+      return permissionStatus[Permission.location];
     } else {
       return permission;
     }
   }
 
-  _getCurrentLocationProcess() async {
-    final PermissionStatus permissionStatus = await _geLocationtPermission();
-    if (permissionStatus == PermissionStatus.granted) {
-      _getCurrentLocation();
-    } else {
-      SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.remove('user');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => LoginPage(),
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              "Please Grant Kybee Permissions to get location through the phone settings"),
-        ),
-      );
-    }
-  }
+  // _getCurrentLocationProcess() async {
+  //   final PermissionStatus permissionStatus = await _geLocationtPermission();
+  //   if (permissionStatus == PermissionStatus.granted) {
+  //     _getCurrentLocation();
+  //   } else {
+  //     SharedPreferences localStorage = await SharedPreferences.getInstance();
+  //     localStorage.remove('user');
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (context) => LoginPage(),
+  //       ),
+  //     );
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //             "Please Grant Kybee Permissions to get location through the phone settings"),
+  //       ),
+  //     );
+  //   }
+  // }
 
-  _getCurrentLocation() {
-    geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
-        .then((Position position) {
-      setState(() {
-        _currentPosition = position;
-      });
+  // _getCurrentLocation() {
+  //   geolocator
+  //       .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+  //       .then((Position position) {
+  //     setState(() {
+  //       _currentPosition = position;
+  //     });
 
-      _getAddressFromLatLng();
-    }).catchError((e) {
-      // print(e);
-    });
-  }
+  //     _getAddressFromLatLng();
+  //   }).catchError((e) {
+  //     // print(e);
+  //   });
+  // }
 
-  _getAddressFromLatLng() async {
-    try {
-      if (await Permission.locationWhenInUse.serviceStatus.isEnabled) {
-        List<Placemark> p = await geolocator.placemarkFromCoordinates(
-            _currentPosition.latitude, _currentPosition.longitude);
+  // _getAddressFromLatLng() async {
+  //   try {
+  //     if (await Permission.locationWhenInUse.serviceStatus.isEnabled) {
+  //       List<Placemark> p = await geolocator.placemarkFromCoordinates(
+  //           _currentPosition.latitude, _currentPosition.longitude);
 
-        Placemark place = p[0];
-        setState(() {
-          _currentAddress =
-              "${place.locality}, ${place.administrativeArea}, ${place.subAdministrativeArea}, ${place.country}, ${place.thoroughfare}, ${place.subThoroughfare}";
-          _currentPositionFetched = true;
-        });
-      }
-    } catch (e) {
-      //print(e);
-    }
-  }
+  //       Placemark place = p[0];
+  //       setState(() {
+  //         _currentAddress =
+  //             "${place.locality}, ${place.administrativeArea}, ${place.subAdministrativeArea}, ${place.country}, ${place.thoroughfare}, ${place.subThoroughfare}";
+  //         _currentPositionFetched = true;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     //print(e);
+  //   }
+  // }
 
-  _refreshStatus(context) {
-    Navigator.pop(context);
-    return Navigator.push(
-        context, MaterialPageRoute(builder: (context) => DashboardPage()));
-  }
+  _refreshStatus(context) {}
 
   _calculateLoan(context) async {
     Loading().loader(context, "Loading...Please wait");
@@ -252,7 +246,7 @@ class _DashboardState extends State<DashboardPage> {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     var user = json.decode(localStorage.getString('user'));
 
-    _getCurrentLocationProcess();
+    // _getCurrentLocationProcess();
 
     var data = {
       'user_id': user['id'],
