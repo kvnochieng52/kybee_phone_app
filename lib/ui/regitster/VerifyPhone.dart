@@ -121,7 +121,14 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Colors.green,
+          duration: Duration(milliseconds: 8000),
           content: Text(body['message'].toString()),
+          action: SnackBarAction(
+            label: 'X',
+            textColor: Colors.orange,
+            onPressed: () {},
+          ),
         ),
       );
       return Navigator.push(
@@ -134,7 +141,14 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Colors.red,
+          duration: Duration(milliseconds: 8000),
           content: Text(body['message'].toString()),
+          action: SnackBarAction(
+            label: 'X',
+            textColor: Colors.orange,
+            onPressed: () {},
+          ),
         ),
       );
     }
@@ -181,7 +195,14 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
     if (body['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Colors.green,
+          duration: Duration(milliseconds: 8000),
           content: Text(body['message'].toString()),
+          action: SnackBarAction(
+            label: 'X',
+            textColor: Colors.orange,
+            onPressed: () {},
+          ),
         ),
       );
       Navigator.pop(context);
@@ -190,7 +211,14 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Colors.red,
+          duration: Duration(milliseconds: 8000),
           content: Text(body['message'].toString()),
+          action: SnackBarAction(
+            label: 'X',
+            textColor: Colors.orange,
+            onPressed: () {},
+          ),
         ),
       );
     }

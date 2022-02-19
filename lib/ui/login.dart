@@ -79,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DashboardPage()),
+            MaterialPageRoute(builder: (context) => LoginPage()),
           );
         },
         child: Text(
@@ -163,7 +163,14 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Colors.red,
+          duration: Duration(milliseconds: 8000),
           content: Text(body['message'].toString()),
+          action: SnackBarAction(
+            label: 'X',
+            textColor: Colors.orange,
+            onPressed: () {},
+          ),
         ),
       );
     }

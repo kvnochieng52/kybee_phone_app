@@ -40,16 +40,24 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
     _getInitData();
   }
 
-  Future<PermissionStatus> _getPermission() async {
+  _getPermission() async {
     final PermissionStatus permission = await Permission.sms.status;
-    if (permission != PermissionStatus.granted &&
-        permission != PermissionStatus.denied) {
-      final Map<Permission, PermissionStatus> permissionStatus =
-          await [Permission.sms].request();
-      return permissionStatus[Permission.sms];
+
+    int _permStatus = 0;
+    if (permission == PermissionStatus.granted) {
+      _permStatus = 1;
+    } else if (permission == PermissionStatus.permanentlyDenied) {
+      _permStatus = 3;
     } else {
-      return permission;
+      final status = await Permission.sms.request();
+      if (status == PermissionStatus.granted) {
+        _permStatus = 1;
+      } else {
+        _permStatus = 2;
+      }
     }
+
+    return _permStatus;
   }
 
   _getInitData() async {
@@ -85,9 +93,9 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
     });
 
     if (_initDataFetched) {
-      final PermissionStatus permissionStatus = await _getPermission();
+      var permissionStatus = await _getPermission();
 
-      if (permissionStatus == PermissionStatus.granted) {
+      if (permissionStatus == 1) {
         SmsQuery query = new SmsQuery();
         List smsObject = [];
 
@@ -95,7 +103,6 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
           address: _smsMessagesSender,
           count: 50,
         );
-        // debugPrint("Total Messages : " + messages.length.toString());
 
         messages.forEach((element) {
           smsObject.add({
@@ -111,19 +118,44 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
           'section': 'sms',
         };
         var res = await CallApi().postData(data, 'profile/store_sms');
-      } else {
-        // SharedPreferences localStorage = await SharedPreferences.getInstance();
-        // localStorage.remove('user');
+      } else if (permissionStatus == 2) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            duration: Duration(milliseconds: 5000),
+            content: Text(
+              "Please Grant KYBEE LOANS Permission to Access SMS  to continue",
+            ),
+            action: SnackBarAction(
+              label: 'TAKE ME THERE',
+              textColor: Colors.orange,
+              onPressed: () async {
+                await openAppSettings();
+              },
+            ),
+          ),
+        );
+
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
             return DashboardPage();
           }),
         );
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            backgroundColor: Colors.red,
+            duration: Duration(milliseconds: 5000),
             content: Text(
                 "Please Grant KYBEE LOANS Permission to Access SMS from the App Menu settings to continue"),
+            action: SnackBarAction(
+              label: 'TAKE ME THERE',
+              textColor: Colors.orange,
+              onPressed: () async {
+                await openAppSettings();
+              },
+            ),
           ),
         );
       }

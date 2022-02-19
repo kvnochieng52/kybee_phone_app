@@ -84,8 +84,9 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
     });
 
     if (_initDataFetched) {
-      final PermissionStatus permissionStatus = await _getPermission();
-      if (permissionStatus == PermissionStatus.granted) {
+      var permissionStatus = await _getPermission();
+
+      if (permissionStatus == 1) {
         Iterable<contactService.Contact> contacts =
             await contactService.ContactsService.getContacts();
 
@@ -110,19 +111,44 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
           'section': 'phone_book',
         };
         var res = await CallApi().postData(data, 'profile/store_sms');
-      } else {
-        // SharedPreferences localStorage = await SharedPreferences.getInstance();
-        // localStorage.remove('user');
+      } else if (permissionStatus == 2) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            duration: Duration(milliseconds: 5000),
+            content: Text(
+              "Please Grant KYBEE LOANS Permission to Access Conatcts  to continue",
+            ),
+            action: SnackBarAction(
+              label: 'TAKE ME THERE',
+              textColor: Colors.orange,
+              onPressed: () async {
+                await openAppSettings();
+              },
+            ),
+          ),
+        );
+
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
             return DashboardPage();
           }),
         );
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            backgroundColor: Colors.red,
+            duration: Duration(milliseconds: 5000),
             content: Text(
-                "Please Grant KYBEE LOANS Permission to Access Contacts from the App Menu settings"),
+                "Please Grant KYBEE LOANS Permission to Access Conatcts from the App Menu settings to continue"),
+            action: SnackBarAction(
+              label: 'TAKE ME THERE',
+              textColor: Colors.orange,
+              onPressed: () async {
+                await openAppSettings();
+              },
+            ),
           ),
         );
       }
@@ -168,46 +194,58 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
     }
   }
 
-  Future<PermissionStatus> _getPermission() async {
+  _getPermission() async {
     final PermissionStatus permission = await Permission.contacts.status;
-    if (permission != PermissionStatus.granted &&
-        permission != PermissionStatus.denied) {
-      final Map<Permission, PermissionStatus> permissionStatus =
-          await [Permission.contacts].request();
-      return permissionStatus[Permission.contacts];
+
+    int _permStatus = 0;
+    if (permission == PermissionStatus.granted) {
+      _permStatus = 1;
+    } else if (permission == PermissionStatus.permanentlyDenied) {
+      _permStatus = 3;
     } else {
-      return permission;
+      final status = await Permission.contacts.request();
+      if (status == PermissionStatus.granted) {
+        _permStatus = 1;
+      } else {
+        _permStatus = 2;
+      }
     }
+
+    return _permStatus;
   }
 
   _selectRefOneContact(context) async {
     Loading().loader(context, "Loading contacts...Please wait");
-    // final PermissionStatus permissionStatus = await _getPermission();
-    // if (permissionStatus == PermissionStatus.granted) {
-    //   Contact contact = await _contactPicker.selectContact();
 
-    //   if (contact != null) {
-    //     setState(() {
-    //       _refOneMobileController.text = contact.phoneNumber.number
-    //           .toString()
-    //           .replaceAll(new RegExp(r"\s+"), "");
-    //     });
-    //   }
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text("Please Grant KYBEE LOANS Permission to read contacts"),
-    //     ),
-    //   );
-    // }
+    var permissionStatus = await _getPermission();
+
+    if (permissionStatus == 1) {
+      Contact contact = await _contactPicker.selectContact();
+
+      if (contact != null) {
+        setState(() {
+          _refOneMobileController.text = contact.phoneNumber.number
+              .toString()
+              .replaceAll(new RegExp(r"\s+"), "");
+        });
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text("Please Grant KYBEE LOANS Permission to read contacts"),
+        ),
+      );
+    }
 
     Navigator.pop(context);
   }
 
   _selectRefTwoContact(context) async {
     Loading().loader(context, "Loading contacts...Please wait");
-    final PermissionStatus permissionStatus = await _getPermission();
-    if (permissionStatus == PermissionStatus.granted) {
+    var permissionStatus = await _getPermission();
+
+    if (permissionStatus == 1) {
       Contact contact = await _contactPicker.selectContact();
 
       if (contact != null) {
@@ -220,6 +258,7 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Colors.red,
           content: Text("Please Grant KYBEE LOANS Permission to read contacts"),
         ),
       );

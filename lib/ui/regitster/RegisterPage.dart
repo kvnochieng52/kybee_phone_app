@@ -137,7 +137,14 @@ class _RegisterPageState extends State<RegisterPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Colors.green,
+          duration: Duration(milliseconds: 8000),
           content: Text(body['message']),
+          action: SnackBarAction(
+            label: 'X',
+            textColor: Colors.orange,
+            onPressed: () {},
+          ),
         ),
       );
 
@@ -151,7 +158,14 @@ class _RegisterPageState extends State<RegisterPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Colors.red,
+          duration: Duration(milliseconds: 8000),
           content: Text(body['message'].toString()),
+          action: SnackBarAction(
+            label: 'X',
+            textColor: Colors.orange,
+            onPressed: () {},
+          ),
         ),
       );
     }

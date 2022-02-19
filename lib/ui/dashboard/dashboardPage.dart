@@ -126,7 +126,14 @@ class _DashboardState extends State<DashboardPage> {
   //   }
   // }
 
-  _refreshStatus(context) {}
+  _refreshStatus(context) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DashboardPage(),
+      ),
+    );
+  }
 
   _calculateLoan(context) async {
     Loading().loader(context, "Loading...Please wait");
@@ -215,6 +222,7 @@ class _DashboardState extends State<DashboardPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Colors.red,
           duration: Duration(milliseconds: snacTime),
           content: Text(body['message']),
           action: SnackBarAction(
@@ -310,10 +318,16 @@ class _DashboardState extends State<DashboardPage> {
   }
 
   _refreshScreen(context) {
-    _initDataFetched = false;
-    Loading().loader(context, "Loading...Please wait");
-    _getInitData();
-    Navigator.pop(context);
+    return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DashboardPage(),
+      ),
+    );
+    // _initDataFetched = false;
+    // Loading().loader(context, "Loading...Please wait");
+    // _getInitData();
+    // Navigator.pop(context);
   }
 
   _activeLoanScreen(context) {

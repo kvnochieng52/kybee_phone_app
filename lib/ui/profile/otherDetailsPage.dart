@@ -106,6 +106,7 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
     if (body['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Colors.green,
           content: Text("Details Successfully Saved"),
         ),
       );
