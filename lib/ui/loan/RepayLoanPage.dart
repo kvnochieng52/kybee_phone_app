@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kybee/api/api.dart';
 import 'package:kybee/ui/dashboard/dashboardPage.dart';
@@ -48,6 +49,23 @@ class _RepayLoanPageState extends State<RepayLoanPage> {
         _balance = body['balance'];
       });
     }
+  }
+
+  _copyPayBillNo() {
+    Clipboard.setData(ClipboardData(text: _mpesaPabill));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.green,
+        // duration: Duration(milliseconds: snacTime),
+        content: Text("Business No. Copied!"),
+        action: SnackBarAction(
+          label: 'X',
+          textColor: Colors.orange,
+          onPressed: () {},
+        ),
+      ),
+    );
   }
 
 //widget.phone;
@@ -113,22 +131,32 @@ class _RepayLoanPageState extends State<RepayLoanPage> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
-                          child: RichText(
-                            text: TextSpan(
-                              style: const TextStyle(
-                                fontSize: 17.9,
-                                color: Colors.grey,
-                              ),
-                              children: <TextSpan>[
-                                TextSpan(text: '2. Enter Business no. '),
-                                TextSpan(
-                                  text: "$_mpesaPabill",
+                          child: Row(
+                            children: [
+                              RichText(
+                                text: TextSpan(
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17.9,
+                                    color: Colors.grey,
                                   ),
+                                  children: <TextSpan>[
+                                    TextSpan(text: '2. Enter Business no. '),
+                                    TextSpan(
+                                      text: "$_mpesaPabill",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              ElevatedButton(
+                                child: Text("Copy"),
+                                onPressed: () => _copyPayBillNo(),
+                                style: ElevatedButton.styleFrom(
+                                    primary: Colors.blue),
+                              )
+                            ],
                           ),
                         ),
                         Padding(
