@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/login.dart';
+import 'package:kybee/ui/meta_data/metaData.dart';
 import 'package:kybee/widgets/drawer.dart';
 import 'package:kybee/widgets/headerMain.dart';
 import 'package:kybee/widgets/progress.dart';
@@ -25,7 +26,7 @@ class _LogOutState extends State<LogOutPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LoginPage(),
+        builder: (context) => MetaDataPage(),
       ),
     );
   }

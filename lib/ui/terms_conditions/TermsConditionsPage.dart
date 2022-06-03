@@ -72,10 +72,13 @@ class _TermsandConditionsPageState extends State<TermsandConditionsPage> {
                           physics: ClampingScrollPhysics(),
                           shrinkWrap: true,
                           children: <Widget>[
-                            SingleChildScrollView(
-                              child: Html(
-                                data: """$_terms""",
-                                //padding: EdgeInsets.all(8.0),
+                            Container(
+                              height: MediaQuery.of(context).size.height - 250,
+                              child: SingleChildScrollView(
+                                child: Html(
+                                  data: """$_terms""",
+                                  //padding: EdgeInsets.all(8.0),
+                                ),
                               ),
                             ),
                           ]),

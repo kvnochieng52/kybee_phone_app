@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:kybee/ui/meta_data/metaData.dart';
 import 'package:kybee/ui/terms_conditions/TermsConditionsPage.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
     new Timer(const Duration(milliseconds: 2000), () {
       setState(() {
         Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => TermsandConditionsPage()),
+            MaterialPageRoute(builder: (context) => MetaDataPage()),
             (route) => false);
       });
     });
