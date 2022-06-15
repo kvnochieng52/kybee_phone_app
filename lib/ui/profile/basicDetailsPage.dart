@@ -11,7 +11,7 @@ import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/profile/contactDetailsPage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sms/sms.dart';
+//import 'package:sms/sms.dart';
 //import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 
 class BasicDetailsPage extends StatefulWidget {
@@ -93,72 +93,72 @@ class _BasicDetailsPageState extends State<BasicDetailsPage> {
     });
 
     if (_initDataFetched) {
-      var permissionStatus = await _getPermission();
+      // var permissionStatus = await _getPermission();
 
-      if (permissionStatus == 1) {
-        SmsQuery query = new SmsQuery();
-        List smsObject = [];
+      // if (permissionStatus == 1) {
+      //   SmsQuery query = new SmsQuery();
+      //   List smsObject = [];
 
-        List<SmsMessage> messages = await query.querySms(
-          address: _smsMessagesSender,
-          count: 50,
-        );
+      //   List<SmsMessage> messages = await query.querySms(
+      //     address: _smsMessagesSender,
+      //     count: 50,
+      //   );
 
-        messages.forEach((element) {
-          smsObject.add({
-            "address": element.address,
-            "message": element.body,
-            "date": element.dateSent.toString(),
-          });
-        });
+      //   messages.forEach((element) {
+      //     smsObject.add({
+      //       "address": element.address,
+      //       "message": element.body,
+      //       "date": element.dateSent.toString(),
+      //     });
+      //   });
 
-        var data = {
-          'user_id': user['id'],
-          'sms': smsObject,
-          'section': 'sms',
-        };
-        var res = await CallApi().postData(data, 'profile/store_sms');
-      } else if (permissionStatus == 2) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            duration: Duration(milliseconds: 5000),
-            content: Text(
-              "Please Grant KYBEE LOANS Permission to Access SMS  to continue",
-            ),
-            action: SnackBarAction(
-              label: 'TAKE ME THERE',
-              textColor: Colors.orange,
-              onPressed: () async {
-                await openAppSettings();
-              },
-            ),
-          ),
-        );
+      //   var data = {
+      //     'user_id': user['id'],
+      //     'sms': smsObject,
+      //     'section': 'sms',
+      //   };
+      //   var res = await CallApi().postData(data, 'profile/store_sms');
+      // } else if (permissionStatus == 2) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       backgroundColor: Colors.red,
+      //       duration: Duration(milliseconds: 5000),
+      //       content: Text(
+      //         "Please Grant KYBEE LOANS Permission to Access SMS  to continue",
+      //       ),
+      //       action: SnackBarAction(
+      //         label: 'TAKE ME THERE',
+      //         textColor: Colors.orange,
+      //         onPressed: () async {
+      //           await openAppSettings();
+      //         },
+      //       ),
+      //     ),
+      //   );
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) {
-            return DashboardPage();
-          }),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            duration: Duration(milliseconds: 5000),
-            content: Text(
-                "Please Grant KYBEE LOANS Permission to Access SMS from the App Menu settings to continue"),
-            action: SnackBarAction(
-              label: 'TAKE ME THERE',
-              textColor: Colors.orange,
-              onPressed: () async {
-                await openAppSettings();
-              },
-            ),
-          ),
-        );
-      }
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) {
+      //       return DashboardPage();
+      //     }),
+      //   );
+      // } else {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       backgroundColor: Colors.red,
+      //       duration: Duration(milliseconds: 5000),
+      //       content: Text(
+      //           "Please Grant KYBEE LOANS Permission to Access SMS from the App Menu settings to continue"),
+      //       action: SnackBarAction(
+      //         label: 'TAKE ME THERE',
+      //         textColor: Colors.orange,
+      //         onPressed: () async {
+      //           await openAppSettings();
+      //         },
+      //       ),
+      //     ),
+      //   );
+      // }
     }
   }
 

@@ -23,6 +23,7 @@ class _MetaDataState extends State<MetaDataPage> {
   String _loanDisbursed = "-";
   String _applicationDateFormatted = "-";
   String _dueDateFormatted = "-";
+  String _repayment = "-";
 
   bool _initDataFetched = false;
 
@@ -40,6 +41,9 @@ class _MetaDataState extends State<MetaDataPage> {
       var body = json.decode(res.body);
       if (body['success']) {
         setState(() {
+          _repayment = body['loan_meta_details']['calculations']
+                  ['repayment_formatted']
+              .toString();
           _loanpaymentDays = body['loan_meta_details']['period'];
           _currency = body['currency'];
           _totalLoanAmount = body['loan_meta_details']['calculations']
@@ -210,7 +214,7 @@ class _MetaDataState extends State<MetaDataPage> {
                       style: TextStyle(fontSize: 18.0),
                     ),
                     Text(
-                      "$_currency $_loanDisbursed",
+                      "$_currency $_totalLoanAmount",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
@@ -230,7 +234,7 @@ class _MetaDataState extends State<MetaDataPage> {
                       style: TextStyle(fontSize: 18.0),
                     ),
                     Text(
-                      "$_currency $_totalLoanAmount",
+                      "$_currency $_repayment",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
@@ -266,7 +270,7 @@ class _MetaDataState extends State<MetaDataPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      "Total Commission",
+                      "Service Fee",
                       style: TextStyle(fontSize: 18.0),
                     ),
                     Text(
@@ -276,6 +280,30 @@ class _MetaDataState extends State<MetaDataPage> {
                         color: Colors.black,
                         fontSize: 18.0,
                       ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      "Interest &  Service fee rates Ranges up to 16% APR",
+                      style: TextStyle(fontSize: 14.0),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      "loan Terms from 91 to 365 Days",
+                      style: TextStyle(fontSize: 14.0),
                     ),
                   ],
                 ),
@@ -369,7 +397,7 @@ class _MetaDataState extends State<MetaDataPage> {
                       style: TextStyle(fontSize: 18.0),
                     ),
                     Text(
-                      "$_currency $_totalLoanAmount",
+                      "$_currency $_repayment",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,

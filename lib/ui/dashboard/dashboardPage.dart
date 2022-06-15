@@ -34,6 +34,10 @@ class _DashboardState extends State<DashboardPage> {
   String _applicationDateFormatted = "-";
   String _dueDateFormatted = "-";
 
+  String _statementDetails = "-";
+
+  String _displalRepayment = '-';
+
   String _repaymentTotalAmount = "-";
   String _repaymentApplicationDate = "-";
   String _repaymentDueDate = "-";
@@ -154,6 +158,8 @@ class _DashboardState extends State<DashboardPage> {
         _applicationDateFormatted =
             body['loan_details']['application_date_formatted'];
         _dueDateFormatted = body['loan_details']['due_date_formatted'];
+        _displalRepayment =
+            body['loan_details']['repayment_formatted'].toString();
       });
     }
 
@@ -268,9 +274,12 @@ class _DashboardState extends State<DashboardPage> {
       if (body['success']) {
         setState(() {
           _loanDistributions = body['loan_distributions'];
+          _statementDetails = body['statement_details'];
           _loanDistribution = body['user_details']['loan_distribution_id'];
           _loanpaymentDays = body['user_details']['period'];
           _currency = body['currency'];
+          _displalRepayment =
+              body['default_loan']['repayment_formatted'].toString();
           _totalLoanAmount =
               body['default_loan']['total_loan_amount_formatted'].toString();
           _intrest = body['default_loan']['intrest_formatted'].toString();
@@ -522,33 +531,50 @@ class _DashboardState extends State<DashboardPage> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15.0),
-                  child: (_repaymentLoanStatusID == 4 ||
-                          _repaymentLoanStatusID == 3)
-                      ? ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: HexColor('#4A1F1F'), // background
-                            onPrimary: HexColor('#4A1F1A'),
-                            shape: StadiumBorder(), // foreground
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
-                            child: Text(
-                              _repaymentLoanStatusID == 4
-                                  ? "Repay Loan"
-                                  : "Close",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15.0),
+                      child: (_repaymentLoanStatusID == 4 ||
+                              _repaymentLoanStatusID == 3)
+                          ? ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary: HexColor('#4A1F1F'), // background
+                                onPrimary: HexColor('#4A1F1A'),
+                                shape: StadiumBorder(), // foreground
                               ),
-                            ),
-                          ),
-                          onPressed: () => _repaymentLoanStatusID == 4
-                              ? _repayLoan(context)
-                              : _closeLoan(context))
-                      : Text("-------------------------"),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
+                                child: Text(
+                                  _repaymentLoanStatusID == 4
+                                      ? "Repay Loan"
+                                      : "Close",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              onPressed: () => _repaymentLoanStatusID == 4
+                                  ? _repayLoan(context)
+                                  : _closeLoan(context))
+                          : Text("-------------------------"),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15.0),
+                      child: _repaymentLoanStatusID == 1
+                          ? Text(
+                              "$_statementDetails",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.red,
+                                fontSize: 16.0,
+                              ),
+                            )
+                          : Text(""),
+                    )
+                  ],
                 ),
               ],
             ),
@@ -734,7 +760,7 @@ class _DashboardState extends State<DashboardPage> {
                       style: TextStyle(fontSize: 18.0),
                     ),
                     Text(
-                      "$_currency $_totalLoanAmount",
+                      "$_currency $_displalRepayment",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
@@ -770,7 +796,7 @@ class _DashboardState extends State<DashboardPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      "Total Commission",
+                      "Service Fee",
                       style: TextStyle(fontSize: 18.0),
                     ),
                     Text(
@@ -784,6 +810,30 @@ class _DashboardState extends State<DashboardPage> {
                   ],
                 ),
               ),
+              // Padding(
+              //   padding: const EdgeInsets.only(top: 15.0),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //     children: <Widget>[
+              //       Text(
+              //         "Interest &  Comission rates Ranges up to 10% APR",
+              //         style: TextStyle(fontSize: 14.0),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.only(top: 15.0),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //     children: <Widget>[
+              //       Text(
+              //         "loan Terms from 91 to 365 Days",
+              //         style: TextStyle(fontSize: 14.0),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -873,7 +923,7 @@ class _DashboardState extends State<DashboardPage> {
                       style: TextStyle(fontSize: 18.0),
                     ),
                     Text(
-                      "$_currency $_totalLoanAmount",
+                      "$_currency $_displalRepayment",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,

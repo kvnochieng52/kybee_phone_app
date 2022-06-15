@@ -160,13 +160,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.2+2"
-  flutter_sms_inbox:
-    dependency: "direct main"
-    description:
-      name: flutter_sms_inbox
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.1"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -420,13 +413,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
-  sms:
-    dependency: "direct main"
-    description:
-      name: sms
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.4"
   source_span:
     dependency: transitive
     description:
