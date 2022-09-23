@@ -8,7 +8,6 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:kybee/api/api.dart';
 import 'package:kybee/ui/permissions_request/permissionRequestPage.dart';
 import 'package:kybee/ui/progress.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class TermsandConditionsPage extends StatefulWidget {
   @override
@@ -42,40 +41,12 @@ class _TermsandConditionsPageState extends State<TermsandConditionsPage> {
     }
   }
 
-  _getPermission() async {
-    final PermissionStatus permission = await Permission.contacts.status;
-
-    int _permStatus = 0;
-    if (permission == PermissionStatus.granted) {
-      _permStatus = 1;
-    } else if (permission == PermissionStatus.permanentlyDenied) {
-      _permStatus = 3;
-    } else {
-      final status = await Permission.contacts.request();
-      if (status == PermissionStatus.granted) {
-        _permStatus = 1;
-      } else {
-        _permStatus = 2;
-      }
-    }
-
-    return _permStatus;
-  }
-
   _checkTerms(context) {
     if (_accepted_terms == true) {
-      var permissionStatus = _getPermission();
-      if (permissionStatus == 1) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => PermissionRequestPage()),
-        );
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PermissionRequestPage()),
+      );
     } else {
       showAlertDialog(context);
       _accepted_terms = false;

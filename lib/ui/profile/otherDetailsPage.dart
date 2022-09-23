@@ -7,6 +7,7 @@ import 'package:kybee/api/api.dart';
 import 'package:kybee/common/theme_helper.dart';
 import 'package:kybee/ui/dashboard/dashboardPage.dart';
 import 'package:kybee/ui/loading.dart';
+import 'package:kybee/ui/profile/uploadsPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OtherDetailsPage extends StatefulWidget {
@@ -114,7 +115,7 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
       return Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DashboardPage(),
+            builder: (context) => UploadsPage(),
           ));
     }
   }
