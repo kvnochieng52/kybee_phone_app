@@ -30,7 +30,7 @@ dependencies:
   cupertino_icons:
   hexcolor: 
   flutter_launcher_icons: 
-  flutter_html: 
+  flutter_html:  
   shared_preferences: 
   http: 
   intl: 
@@ -44,6 +44,7 @@ dependencies:
   flutter_svg: 0.22.0
   rename: ^1.3.1
   image_picker:
+  cached_network_image:
 
 dev_dependencies:
   flutter_test:

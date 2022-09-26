@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kybee/api/api.dart';
 import 'package:kybee/common/theme_helper.dart';
-import 'package:kybee/ui/dashboard/dashboardPage.dart';
 import 'package:kybee/ui/loading.dart';
 import 'package:kybee/ui/profile/uploadsPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -105,12 +104,12 @@ class _OtherDetailsPageState extends State<OtherDetailsPage> {
     var res = await CallApi().postData(data, 'profile/update');
     var body = json.decode(res.body);
     if (body['success']) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.green,
-          content: Text("Details Successfully Saved"),
-        ),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     backgroundColor: Colors.green,
+      //     content: Text("Details Successfully Saved"),
+      //   ),
+      // );
       Navigator.pop(context);
       return Navigator.push(
           context,

@@ -3,17 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kybee/api/api.dart';
-import 'package:kybee/common/theme_helper.dart';
-import 'package:intl/intl.dart';
+import 'package:kybee/models/configuration.dart';
 import 'package:kybee/ui/dashboard/dashboardPage.dart';
 import 'package:kybee/ui/loading.dart';
-import 'package:kybee/ui/profile/contactDetailsPage.dart';
 import 'package:kybee/widgets/drawer.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class UploadsPage extends StatefulWidget {
   @override
@@ -24,10 +22,52 @@ class _UploadsPageState extends State<UploadsPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool _initDataFetched = false;
+
   File image;
+  File iDFrontImage;
+  File iDBackImage;
+
   var pickedFile;
-  String base64Image;
+  var iDFrontPickedFile;
+  var iDBackPickedFile;
+
   bool _selfieImageSelected = false;
+  bool _iDFrontImageSelected = false;
+  bool _iDBackImageSelected = false;
+
+  String _uploadedSelfieImage;
+  String _uploadedIDFrontImage;
+  String _uploadedIDBackImage;
+
+  void initState() {
+    super.initState();
+    _getInitData();
+  }
+
+  _getInitData() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    var data = {
+      'user_id': user['id'],
+    };
+    var res = await CallApi().postData(data, 'profile/details');
+    if (res.statusCode == 200) {
+      setState(() {
+        _initDataFetched = true;
+      });
+
+      var body = json.decode(res.body);
+      if (body['success']) {
+        setState(() {
+          _uploadedSelfieImage = body['data']['selfie'];
+          _uploadedIDFrontImage = body['data']['id_front'];
+          _uploadedIDBackImage = body['data']['id_back'];
+        });
+      }
+    }
+  }
 
   Future _pickSelfieImage() async {
     pickedFile = await ImagePicker()
@@ -46,8 +86,7 @@ class _UploadsPageState extends State<UploadsPage> {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     var user = json.decode(localStorage.getString('user'));
 
-    final uri =
-        Uri.parse("https://app.kybeeloans.com/api/profile/upload_image");
+    final uri = Uri.parse(Configuration.API_URL + "profile/upload_image");
     var request = http.MultipartRequest('POST', uri);
     request.fields['type'] = "selfie";
     request.fields['user_id'] = user['id'].toString();
@@ -55,16 +94,169 @@ class _UploadsPageState extends State<UploadsPage> {
     request.files.add(pic);
     var response = await request.send();
     if (response.statusCode == 200) {
-      print("image Uploaded here...");
-      print("Here .... B");
-    } else {
-      print("image Not Uploaded");
-      print("Here .... C");
-    }
+    } else {}
 
     setState(() {
       _selfieImageSelected = false;
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.green,
+        content: Text("Selfie image  Successfully Saved"),
+      ),
+    );
+
+    Navigator.pop(context);
+  }
+
+  _showSelfieImage(context) {
+    if (pickedFile != null) {
+      return Image.file(
+        image,
+        fit: BoxFit.cover,
+        height: 250,
+        width: 300,
+      );
+    } else {
+      if (_uploadedSelfieImage != null) {
+        return CachedNetworkImage(
+          imageUrl: Configuration.WEB_URL + _uploadedSelfieImage,
+          placeholder: (context, url) => Text("loading image... please wait"),
+          fit: BoxFit.cover,
+          height: 250,
+          //width: ,
+          //errorWidget: (context, url, error) => new Icon(Icons.error),
+        );
+      }
+    }
+    return Text("");
+  }
+
+  Future _pickIDFrontImage() async {
+    iDFrontPickedFile = await ImagePicker()
+        .pickImage(source: ImageSource.camera, imageQuality: 50);
+    if (iDFrontPickedFile != null) {
+      setState(() {
+        iDFrontImage = File(iDFrontPickedFile.path);
+        _iDFrontImageSelected = true;
+      });
+    }
+  }
+
+  Future _saveIDFrontImage() async {
+    Loading().loader(context, "Saving ID Front...Please wait");
+
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    final uri = Uri.parse(Configuration.API_URL + "profile/upload_image");
+    var request = http.MultipartRequest('POST', uri);
+    request.fields['type'] = "id_front";
+    request.fields['user_id'] = user['id'].toString();
+    var pic = await http.MultipartFile.fromPath("image", iDFrontImage.path);
+    request.files.add(pic);
+    var response = await request.send();
+    if (response.statusCode == 200) {
+    } else {}
+
+    setState(() {
+      _iDFrontImageSelected = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.green,
+        content: Text("ID Front image  Successfully Saved"),
+      ),
+    );
+
+    Navigator.pop(context);
+  }
+
+  _showIDFrontImage(context) {
+    if (iDFrontPickedFile != null) {
+      return Image.file(
+        iDFrontImage,
+        fit: BoxFit.cover,
+        height: 250,
+        width: 300,
+      );
+    } else {
+      if (_uploadedIDFrontImage != null) {
+        return CachedNetworkImage(
+          imageUrl: Configuration.WEB_URL + _uploadedIDFrontImage,
+          placeholder: (context, url) => Text("loading image... please wait"),
+          fit: BoxFit.cover,
+          height: 250,
+          //width: ,
+          //errorWidget: (context, url, error) => new Icon(Icons.error),
+        );
+      }
+    }
+    return Text("");
+  }
+
+  Future _pickIDBackImage() async {
+    iDBackPickedFile = await ImagePicker()
+        .pickImage(source: ImageSource.camera, imageQuality: 50);
+    if (iDBackPickedFile != null) {
+      setState(() {
+        iDBackImage = File(iDBackPickedFile.path);
+        _iDBackImageSelected = true;
+      });
+    }
+  }
+
+  _showIDBackImage(context) {
+    if (iDBackPickedFile != null) {
+      return Image.file(
+        iDBackImage,
+        fit: BoxFit.cover,
+        height: 250,
+        width: 300,
+      );
+    } else {
+      if (_uploadedIDBackImage != null) {
+        return CachedNetworkImage(
+          imageUrl: Configuration.WEB_URL + _uploadedIDBackImage,
+          placeholder: (context, url) => Text("loading image... please wait"),
+          fit: BoxFit.cover,
+          height: 250,
+          //width: ,
+          //errorWidget: (context, url, error) => new Icon(Icons.error),
+        );
+      }
+    }
+    return Text("");
+  }
+
+  Future _saveIDBackImage() async {
+    Loading().loader(context, "Saving ID Back...Please wait");
+
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var user = json.decode(localStorage.getString('user'));
+
+    final uri = Uri.parse(Configuration.API_URL + "profile/upload_image");
+    var request = http.MultipartRequest('POST', uri);
+    request.fields['type'] = "id_back";
+    request.fields['user_id'] = user['id'].toString();
+    var pic = await http.MultipartFile.fromPath("image", iDBackImage.path);
+    request.files.add(pic);
+    var response = await request.send();
+    if (response.statusCode == 200) {
+    } else {}
+
+    setState(() {
+      _iDBackImageSelected = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.green,
+        content: Text("ID Back image  Successfully Saved"),
+      ),
+    );
 
     Navigator.pop(context);
   }
@@ -74,19 +266,47 @@ class _UploadsPageState extends State<UploadsPage> {
       _buildIDFrontUpload(context),
       _buildIDBackUpload(context),
       _buildSelfieUpload(context),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            primary: HexColor('#4A1F1F'), // background
+            onPrimary: HexColor('#4A1F1A'),
+            shape: StadiumBorder(), // foreground
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
+            child: Text(
+              'Submit'.toUpperCase(),
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+          ),
+          onPressed: () => {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) {
+                return DashboardPage();
+              }),
+            )
+          },
+        ),
+      ),
     ]);
   }
 
   Widget _buildIDFrontUpload(context) {
     return Container(
-      margin: const EdgeInsets.only(top: 10.0, bottom: 6.0),
+      margin: const EdgeInsets.only(top: 5.0),
       child: Card(
         child: Padding(
           padding: const EdgeInsets.only(
-            top: 10.0,
-            bottom: 10.0,
-            left: 10.0,
-            right: 10.0,
+            top: 5.0,
+            bottom: 5.0,
+            left: 5.0,
+            right: 5.0,
           ),
           child: ListView(
             physics: ClampingScrollPhysics(),
@@ -121,7 +341,7 @@ class _UploadsPageState extends State<UploadsPage> {
                           fontSize: 20,
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () => _pickIDFrontImage(),
                       child: Text(
                         'Take Photo',
                         style: TextStyle(
@@ -130,24 +350,30 @@ class _UploadsPageState extends State<UploadsPage> {
                         ),
                       ),
                     ),
-                    Spacer(),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        textStyle: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: Text(
-                        'Select from Gallery',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _showIDFrontImage(context),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(0.0),
+                child: _iDFrontImageSelected
+                    ? ElevatedButton(
+                        child: Text(
+                          'Save ID Front',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.red, // background
+                          onPrimary: Colors.yellow, // foreground
+                        ),
+                        onPressed: () => _saveIDFrontImage(),
+                      )
+                    : Text(""),
               ),
             ],
           ),
@@ -158,14 +384,14 @@ class _UploadsPageState extends State<UploadsPage> {
 
   Widget _buildIDBackUpload(context) {
     return Container(
-      margin: const EdgeInsets.only(top: 10.0, bottom: 6.0),
+      margin: const EdgeInsets.only(top: 10.0, bottom: 0.0),
       child: Card(
         child: Padding(
           padding: const EdgeInsets.only(
-            top: 10.0,
-            bottom: 10.0,
-            left: 10.0,
-            right: 10.0,
+            top: 4.0,
+            bottom: 4.0,
+            left: 8.0,
+            right: 8.0,
           ),
           child: ListView(
             physics: ClampingScrollPhysics(),
@@ -200,7 +426,7 @@ class _UploadsPageState extends State<UploadsPage> {
                           fontSize: 20,
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () => _pickIDBackImage(),
                       child: Text(
                         'Take Photo',
                         style: TextStyle(
@@ -209,24 +435,30 @@ class _UploadsPageState extends State<UploadsPage> {
                         ),
                       ),
                     ),
-                    Spacer(),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        textStyle: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: Text(
-                        'Select from Gallery',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _showIDBackImage(context),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _iDBackImageSelected
+                    ? ElevatedButton(
+                        child: Text(
+                          'Save ID Back',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.red, // background
+                          onPrimary: Colors.yellow, // foreground
+                        ),
+                        onPressed: () => _saveIDBackImage(),
+                      )
+                    : Text(""),
               ),
             ],
           ),
@@ -293,14 +525,7 @@ class _UploadsPageState extends State<UploadsPage> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: pickedFile != null
-                    ? Image.file(
-                        image,
-                        width: 150,
-                        height: 150,
-                        fit: BoxFit.fitHeight,
-                      )
-                    : Text('Tap on Take photo then click on save'),
+                child: _showSelfieImage(context),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -341,7 +566,31 @@ class _UploadsPageState extends State<UploadsPage> {
           ),
         ),
       ),
-      body: _buildBodyptions(context),
+      body: _initDataFetched
+          ? _buildBodyptions(context)
+          : Padding(
+              padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    child: CircularProgressIndicator(),
+                    height: 25.0,
+                    width: 25.0,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15.0),
+                    child: Text(
+                      "Loading...Please Wait",
+                      style: TextStyle(
+                        color: Colors.brown,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }
